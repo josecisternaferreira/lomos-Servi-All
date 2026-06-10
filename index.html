@@ -688,21 +688,30 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
 function doPost(e) {
   try {
     var ss  = SpreadsheetApp.getActiveSpreadsheet();
-    // Accept JSON from: application/json, text/plain, or form payload
     var raw = "";
+    // Read from form field, postData, or querystring
     if (e.parameter && e.parameter.payload) {
       raw = e.parameter.payload;
     } else if (e.postData && e.postData.contents) {
       raw = e.postData.contents;
+    } else if (e.parameter && e.parameter.data) {
+      raw = e.parameter.data;
     }
+    if (!raw) return ok_({ok:false, error:"No data received"});
     var data   = JSON.parse(raw);
     var action = data.action || "saveDespacho";
+    
+    // Log for debugging
+    Logger.log("action: " + action);
+    if (data.bultos) Logger.log("bultos count: " + data.bultos.length);
+    
     if (action === "saveClientes")  return ok_(guardarClientes_(ss, data.clientes));
     if (action === "saveCliente")   return ok_(guardarCliente_(ss, data.cliente));
     if (action === "deleteCliente") return ok_(eliminarCliente_(ss, data.id));
     if (action === "getClientes")   return ok_(getClientes_(ss));
     return ok_(guardarDespacho_(ss, data));
   } catch(err) {
+    Logger.log("doPost error: " + err.message);
     return ok_({ok:false, error:err.message});
   }
 }
@@ -732,7 +741,15 @@ function sheet_(ss, name, headers, color) {
   var h = ss.getSheetByName(name);
   if (!h) {
     h = ss.insertSheet(name);
-    h.appendRow(headers);
+  }
+  // Always ensure headers match (update if column count differs)
+  var lastCol = h.getLastColumn();
+  if (lastCol !== headers.length || h.getLastRow() === 0) {
+    // Clear row 1 and rewrite headers
+    if (h.getLastRow() > 0) {
+      h.getRange(1,1,1,Math.max(lastCol,headers.length)).clearContent();
+    }
+    h.getRange(1,1,1,headers.length).setValues([headers]);
     h.getRange(1,1,1,headers.length)
       .setFontWeight("bold").setBackground(color).setFontColor("white");
     h.setFrozenRows(1);
@@ -1377,7 +1394,34 @@ function buildPrintHtml(indices){
 function imprimirTodas(){if(!currentData)return;document.getElementById('print-area').innerHTML=buildPrintHtml(currentData.bultos.map((_,i)=>i));window.print();}
 function imprimirUna(idx){if(!currentData)return;document.getElementById('print-area').innerHTML=buildPrintHtml([idx]);window.print();}
 
-function guardarDespacho(){if(!currentData)return;const id='D-'+Date.now();const reg={id,...currentData,guardadoEn:new Date().toISOString(),sincronizado:false};despachos.unshift(reg);localStorage.setItem('despachos_serviall',JSON.stringify(despachos));actualizarBadge();actualizarLocalCount();const url=config.scriptUrl;if(url){const btn=document.getElementById('btn-guardar');btn.disabled=true;btn.innerHTML='Guardando…';postViaForm(url,reg).then(()=>{despachos[0].sincronizado=true;localStorage.setItem('despachos_serviall',JSON.stringify(despachos));showToast('✓ Guardado en Sheets','success');resetGuardarBtn();}).catch(()=>{showToast('Guardado local','error');resetGuardarBtn();});}else showToast('Guardado localmente','success');cargarHistorial();}
+async function guardarDespacho(){
+  if(!currentData)return;
+  const id='D-'+Date.now();
+  const reg={id,...currentData,guardadoEn:new Date().toISOString(),sincronizado:false};
+  despachos.unshift(reg);
+  localStorage.setItem('despachos_serviall',JSON.stringify(despachos));
+  actualizarBadge();actualizarLocalCount();
+  const url=config.scriptUrl;
+  if(url){
+    const btn=document.getElementById('btn-guardar');
+    btn.disabled=true;
+    btn.innerHTML='Guardando…';
+    try{
+      await gasPost(url, reg);
+      despachos[0].sincronizado=true;
+      localStorage.setItem('despachos_serviall',JSON.stringify(despachos));
+      showToast('✓ Guardado en Sheets','success');
+    }catch(err){
+      console.error('guardarDespacho error:',err);
+      showToast('Guardado local — error Sheets: '+err.message,'error');
+    }
+    resetGuardarBtn();
+  } else {
+    showToast('Guardado localmente','success');
+  }
+  cargarHistorial();
+}
+
 function resetGuardarBtn(){const btn=document.getElementById('btn-guardar');if(!btn)return;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Despacho';}
 
 async function sincronizarHistorial(){
@@ -1498,24 +1542,34 @@ async function postViaForm(url,data){ await gasPost(url,data); }
 // GAS-compatible POST: text/plain bypasses CORS preflight
 // GAS reads via e.postData.contents — works from any origin
 async function gasPost(url, data){
+  const body = JSON.stringify(data);
+  console.log('gasPost sending:', data.action||'saveDespacho', 
+    'bultos:', data.bultos ? data.bultos.length : 'n/a');
+  
+  // Try 1: text/plain (no preflight, GAS reads via postData.contents)
   try{
-    // First try with proper headers (works if GAS allows origin)
     const r = await fetch(url, {
       method: 'POST',
-      headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify(data)
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: body
     });
+    console.log('gasPost success, status:', r.status);
     return r;
-  } catch(e){
-    // Fallback: no-cors (fire and forget — can't read response but data arrives)
+  }catch(e1){
+    console.warn('gasPost text/plain failed:', e1.message);
+    // Try 2: no-cors fallback (can't read response but data may arrive)
     try{
       await fetch(url, {
         method: 'POST',
         mode: 'no-cors',
-        headers: {'Content-Type': 'text/plain'},
-        body: JSON.stringify(data)
+        headers: {'Content-Type': 'text/plain;charset=utf-8'},
+        body: body
       });
-    } catch(e2){ console.warn('gasPost fallback failed:',e2); }
+      console.log('gasPost no-cors fallback sent');
+    }catch(e2){
+      console.error('gasPost all methods failed:', e2.message);
+      throw e2;
+    }
   }
 }
 
