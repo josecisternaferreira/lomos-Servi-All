@@ -743,15 +743,21 @@ function sheet_(ss, name, headers, color) {
 // ── DESPACHOS ──────────────────────────────────────────
 function guardarDespacho_(ss, d) {
   var h = sheet_(ss,"Despachos",
-    ["ID","Fecha","Tipo","Cliente","Guia","OC","OV",
-     "Picking","Ciudad","Bultos","TipoBulto","Ruta","Timestamp"],
+    ["ID","Fecha","Tipo","Cliente","Guia","OC","OV","Picking",
+     "Ciudad","Total Bultos","TipoBulto","Ruta",
+     "N° Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
     "#D0191A");
-  h.appendRow([
-    d.id||"", d.fecha||"", d.tipo||"", d.destinatario||"",
-    d.gd||d.guia||"", d.oc||"", d.ov||"", d.picking||"",
-    d.ciudad||"", d.total||"", d.tipoBulto||"", d.ruta||"",
-    new Date().toLocaleString("es-CL")
-  ]);
+  var bultos=(d.bultos&&d.bultos.length)?d.bultos:[{num:1,alto:"",ancho:"",largo:"",dims:"",peso:""}];
+  bultos.forEach(function(b){
+    h.appendRow([
+      d.id||"", d.fecha||"", d.tipo||"", d.destinatario||"",
+      d.gd||d.guia||"", d.oc||"", d.ov||"", d.picking||"",
+      d.ciudad||"", d.total||1, d.tipoBulto||"", d.ruta||"",
+      b.num||1, b.alto||"", b.ancho||"", b.largo||"",
+      b.dims||"", b.peso||"",
+      new Date().toLocaleString("es-CL")
+    ]);
+  });
   return {ok:true};
 }
 
@@ -759,28 +765,26 @@ function guardarDespacho_(ss, d) {
 function getDespachos_(ss) {
   var h = ss.getSheetByName("Despachos");
   if (!h || h.getLastRow() < 2) return {ok:true, despachos:[]};
-  var rows = h.getRange(2,1,h.getLastRow()-1,13).getValues();
-  var despachos = rows
-    .filter(function(r){ return r[0]; })
-    .map(function(r){
-      return {
-        id:       String(r[0]),
-        fecha:    String(r[1]),
-        tipo:     String(r[2]),
-        destinatario: String(r[3]),
-        gd:       String(r[4]),
-        oc:       String(r[5]),
-        ov:       String(r[6]),
-        picking:  String(r[7]),
-        ciudad:   String(r[8]),
-        total:    r[9],
-        tipoBulto:String(r[10]),
-        ruta:     String(r[11]),
-        timestamp:String(r[12]),
-        sincronizado: true
+  var rows = h.getRange(2,1,h.getLastRow()-1,19).getValues();
+  // Group rows by ID (multiple rows per despacho = multiple bultos)
+  var map = {};
+  rows.filter(function(r){ return r[0]; }).forEach(function(r){
+    var id = String(r[0]);
+    if (!map[id]) {
+      map[id] = {
+        id:id, fecha:String(r[1]), tipo:String(r[2]),
+        destinatario:String(r[3]), gd:String(r[4]),
+        oc:String(r[5]), ov:String(r[6]), picking:String(r[7]),
+        ciudad:String(r[8]), total:r[9], tipoBulto:String(r[10]),
+        ruta:String(r[11]), sincronizado:true, bultos:[]
       };
+    }
+    map[id].bultos.push({
+      num:r[12]||1, alto:String(r[13]), ancho:String(r[14]),
+      largo:String(r[15]), dims:String(r[16]), peso:String(r[17])
     });
-  return {ok:true, despachos:despachos};
+  });
+  return {ok:true, despachos:Object.values(map)};
 }
 
 // ── CLIENTES — LEER ────────────────────────────────────
