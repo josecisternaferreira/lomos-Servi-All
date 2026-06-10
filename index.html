@@ -531,7 +531,10 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
   <div class="card">
     <div class="card-header">
       <div class="card-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div><h2>Historial de Despachos</h2></div>
+      <div>
+        <h2>Historial de Despachos</h2>
+        <p id="hist-sync-status" style="font-size:12px;color:var(--gray-400);margin-top:2px;">Cargando desde Sheets…</p>
+      </div>
     </div>
     <div class="card-body">
       <div class="search-bar">
@@ -631,7 +634,11 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
     <div class="card-header" style="justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="card-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div><h2>Clientes Guardados</h2><p id="clientes-count-label">Se autocompletan al escribir</p></div>
+        <div>
+        <h2>Clientes Guardados</h2>
+        <p id="clientes-count-label">Se autocompletan al escribir</p>
+        <p id="clientes-sync-status" style="font-size:12px;color:var(--gray-400);margin-top:1px;"></p>
+      </div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-secondary" onclick="exportarClientesJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Exportar JSON</button>
@@ -704,7 +711,8 @@ function doGet(e) {
   try {
     var ss  = SpreadsheetApp.getActiveSpreadsheet();
     var act = (e.parameter && e.parameter.action) || "getClientes";
-    if (act === "getClientes") return ok_(getClientes_(ss));
+    if (act === "getClientes")  return ok_(getClientes_(ss));
+    if (act === "getDespachos") return ok_(getDespachos_(ss));
     return ok_({ok:true, ping:true});
   } catch(err) {
     return ok_({ok:false, error:err.message});
@@ -745,6 +753,34 @@ function guardarDespacho_(ss, d) {
     new Date().toLocaleString("es-CL")
   ]);
   return {ok:true};
+}
+
+// ── DESPACHOS — LEER ──────────────────────────────────
+function getDespachos_(ss) {
+  var h = ss.getSheetByName("Despachos");
+  if (!h || h.getLastRow() < 2) return {ok:true, despachos:[]};
+  var rows = h.getRange(2,1,h.getLastRow()-1,13).getValues();
+  var despachos = rows
+    .filter(function(r){ return r[0]; })
+    .map(function(r){
+      return {
+        id:       String(r[0]),
+        fecha:    String(r[1]),
+        tipo:     String(r[2]),
+        destinatario: String(r[3]),
+        gd:       String(r[4]),
+        oc:       String(r[5]),
+        ov:       String(r[6]),
+        picking:  String(r[7]),
+        ciudad:   String(r[8]),
+        total:    r[9],
+        tipoBulto:String(r[10]),
+        ruta:     String(r[11]),
+        timestamp:String(r[12]),
+        sincronizado: true
+      };
+    });
+  return {ok:true, despachos:despachos};
 }
 
 // ── CLIENTES — LEER ────────────────────────────────────
@@ -870,7 +906,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   guardarClientes();
   actualizarBadge();actualizarLocalCount();actualizarBadgeClientes();
   cargarHistorial();renderClientes();checkSyncStatus();
-  if(config.scriptUrl && !clientes.length) sincronizarDesdeSheets();
+  if(config.scriptUrl) sincronizarClientes();
   document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))cerrarDropdowns();});
 });
 
@@ -886,9 +922,9 @@ function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
-  if(tab==='historial')cargarHistorial();
+  if(tab==='historial'){cargarHistorial();sincronizarHistorial();}
   if(tab==='config')actualizarLocalCount();
-  if(tab==='clientes')renderClientes();
+  if(tab==='clientes'){renderClientes();sincronizarClientes();}
 }
 function setTipo(tipo){
   tipoActivo=tipo;
@@ -1340,6 +1376,41 @@ function imprimirUna(idx){if(!currentData)return;document.getElementById('print-
 function guardarDespacho(){if(!currentData)return;const id='D-'+Date.now();const reg={id,...currentData,guardadoEn:new Date().toISOString(),sincronizado:false};despachos.unshift(reg);localStorage.setItem('despachos_serviall',JSON.stringify(despachos));actualizarBadge();actualizarLocalCount();const url=config.scriptUrl;if(url){const btn=document.getElementById('btn-guardar');btn.disabled=true;btn.innerHTML='Guardando…';postViaForm(url,reg).then(()=>{despachos[0].sincronizado=true;localStorage.setItem('despachos_serviall',JSON.stringify(despachos));showToast('✓ Guardado en Sheets','success');resetGuardarBtn();}).catch(()=>{showToast('Guardado local','error');resetGuardarBtn();});}else showToast('Guardado localmente','success');cargarHistorial();}
 function resetGuardarBtn(){const btn=document.getElementById('btn-guardar');if(!btn)return;btn.disabled=false;btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Despacho';}
 
+async function sincronizarHistorial(){
+  const url=config.scriptUrl;
+  const statusEl=document.getElementById('hist-sync-status');
+  if(!url){
+    if(statusEl) statusEl.textContent='Sin conexión a Sheets — mostrando datos locales';
+    return;
+  }
+  if(statusEl) statusEl.innerHTML='<span style="color:#3b82f6;">● Sincronizando con Sheets…</span>';
+  try{
+    const res=await fetch(url+'?action=getDespachos&t='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error||'Error');
+    const remotos=data.despachos||[];
+    if(remotos.length){
+      // Merge: remote + local, deduplicate by id, remote wins
+      const localMap={};
+      despachos.forEach(d=>localMap[d.id]=d);
+      remotos.forEach(d=>localMap[d.id]=d);
+      despachos=Object.values(localMap).sort((a,b)=>{
+        // sort by fecha desc
+        return (b.fecha||'').localeCompare(a.fecha||'');
+      });
+      localStorage.setItem('despachos_serviall',JSON.stringify(despachos));
+      actualizarBadge();
+      renderHistorial(despachos);
+    }
+    const ts=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    if(statusEl) statusEl.innerHTML=`<span style="color:#10b981;">● Sincronizado · ${remotos.length} despachos · ${ts}</span>`;
+  }catch(err){
+    console.warn('Sync historial:',err);
+    if(statusEl) statusEl.innerHTML=`<span style="color:#ef4444;">● Sin conexión a Sheets — mostrando datos locales</span>`;
+  }
+}
+
 function cargarHistorial(){despachos=JSON.parse(localStorage.getItem('despachos_serviall')||'[]');renderHistorial(despachos);actualizarBadge();}
 function renderHistorial(lista){const tbody=document.getElementById('historial-tbody');if(!lista.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"/><polyline points="14 2 14 8 20 8" stroke="currentColor"/></svg><p>Sin despachos</p></div></td></tr>`;return;}tbody.innerHTML=lista.map(d=>{const tipo=d.tipo==='traslado'?'<span class="badge-tipo badge-traslado">Transferencia</span>':'<span class="badge-tipo badge-ov">OV</span>';const estado=d.sincronizado?'<span class="badge-tipo badge-sync">✓ Sheets</span>':'<span class="badge-tipo badge-local">Local</span>';const fecha=d.fecha?new Date(d.fecha+'T12:00:00').toLocaleDateString('es-CL'):'—';return`<tr><td>${fecha}</td><td>${tipo}</td><td><strong>${d.destinatario||'—'}</strong></td><td>${d.gd||d.guia||'—'}</td><td style="font-size:12px;">${d.tipo==='traslado'?(d.oc||'—'):`OC:${d.oc||'—'} OV:${d.ov||'—'}`}</td><td>${d.picking||'—'}</td><td style="text-align:center;font-weight:700;">${d.total||1}</td><td>${d.peso||'—'}</td><td>${estado}</td><td style="white-space:nowrap;"><button class="btn btn-ghost" style="padding:4px 8px;" onclick="reimprimir('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button><button class="btn btn-ghost" style="padding:4px 8px;color:#ef4444;" onclick="eliminarDespacho('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>`;}).join('');}
 function filtrarHistorial(){const q=document.getElementById('search-input').value.toLowerCase();const fecha=document.getElementById('filter-fecha').value;const tipo=document.getElementById('filter-tipo').value;renderHistorial(despachos.filter(d=>{const mq=!q||[d.destinatario,d.cliente,d.picking,d.gd,d.guia,d.ov,d.oc].some(x=>(x||'').toLowerCase().includes(q));return mq&&(!fecha||d.fecha===fecha)&&(!tipo||d.tipo===tipo);}));}
@@ -1460,69 +1531,53 @@ function setSyncBtnsLoading(loading){
 }
 
 async function sincronizarDesdeSheets(){
+  await sincronizarClientes(true);
+}
+
+async function sincronizarClientes(manual=false){
   const url=config.scriptUrl;
-  if(!url){showToast('Configura el script de Google Sheets primero','error');switchTab('config');return;}
+  const statusEl=document.getElementById('clientes-sync-status');
+  if(!url){
+    if(statusEl) statusEl.textContent='Sin conexión a Sheets';
+    return;
+  }
+  if(statusEl) statusEl.innerHTML='<span style="color:#3b82f6;">● Sincronizando…</span>';
   setSyncBtnsLoading(true);
-  updateSyncStatus('loading','Cargando clientes desde Sheets…');
+  updateSyncStatus('loading','Cargando clientes…');
   try{
-    // Try GET first (works when CORS is open)
     const res=await fetch(url+'?action=getClientes&t='+Date.now());
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
-    if(!data.ok) throw new Error(data.error||'Error en script');
+    if(!data.ok) throw new Error(data.error||'Error');
     const remotos=data.clientes||[];
     if(!remotos.length){
-      updateSyncStatus('ok','Sheets no tiene clientes aún — sube tu lista primero');
-      showToast('Sheets está vacío','');
+      if(manual) showToast('Sheets no tiene clientes aún','');
+      updateSyncStatus('ok','Sin clientes en Sheets aún');
+      if(statusEl) statusEl.innerHTML='<span style="color:#f59e0b;">● Sheets vacío</span>';
     } else {
+      // Merge: remote wins on conflict
       remotos.forEach(c=>{
-        if(/transfer/i.test(c.tipo))c.tipo='traslado';
-        if(!c.tipo)c.tipo='ov';
-        if(!c.dirs)c.dirs=[];
+        if(/transfer/i.test(c.tipo)) c.tipo='traslado';
+        if(!c.tipo) c.tipo='ov';
+        if(!c.dirs) c.dirs=[];
         const idx=clientes.findIndex(x=>x.id===c.id);
-        if(idx>=0)clientes[idx]=c;else clientes.push(c);
+        if(idx>=0) clientes[idx]=c; else clientes.push(c);
       });
-      guardarClientes();renderClientes();actualizarBadgeClientes();
+      guardarClientes();
+      renderClientes();
+      actualizarBadgeClientes();
       const ts=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-      updateSyncStatus('ok',`Sincronizado · ${remotos.length} clientes · ${ts}`);
-      showToast(`✓ ${remotos.length} clientes cargados`,'success');
+      updateSyncStatus('ok',`Sincronizado · ${remotos.length} clientes`);
+      if(statusEl) statusEl.innerHTML=`<span style="color:#10b981;">● Sincronizado · ${remotos.length} clientes · ${ts}</span>`;
+      if(manual) showToast(`✓ ${remotos.length} clientes cargados`,'success');
     }
   }catch(err){
-    console.error('Sync error:',err);
-    updateSyncStatus('error','Error: '+err.message+' — verifica que el script esté publicado correctamente');
-    showToast('No se pudo conectar a Sheets: '+err.message,'error');
+    console.warn('Sync clientes:',err);
+    updateSyncStatus('error','Sin conexión a Sheets');
+    if(statusEl) statusEl.innerHTML='<span style="color:#ef4444;">● Sin conexión a Sheets</span>';
+    if(manual) showToast('No se pudo conectar: '+err.message,'error');
   }
   setSyncBtnsLoading(false);
-}
-
-async function subirClientesASheets(){
-  const url=config.scriptUrl;
-  if(!url){showToast('Configura el script primero','error');switchTab('config');return;}
-  if(!clientes.length){showToast('No hay clientes para subir','error');return;}
-  if(!confirm(`¿Subir ${clientes.length} clientes a Google Sheets?\nEsto reemplazará la lista en Sheets.`))return;
-  setSyncBtnsLoading(true);
-  updateSyncStatus('loading',`Subiendo ${clientes.length} clientes…`);
-  try{
-    await gasPost(url,{action:'saveClientes',clientes});
-    const ts=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-    updateSyncStatus('ok',`Subido · ${clientes.length} clientes · ${ts}`);
-    showToast(`✓ ${clientes.length} clientes subidos`,'success');
-  }catch(err){
-    updateSyncStatus('error','Error al subir: '+err.message);
-    showToast('Error: '+err.message,'error');
-  }
-  setSyncBtnsLoading(false);
-}
-
-async function syncClienteSheets(cliente, deleted=false){
-  const url=config.scriptUrl;
-  if(!url)return;
-  const body=deleted
-    ?{action:'deleteCliente',id:cliente.id}
-    :{action:'saveCliente',cliente};
-  try{
-    await gasPost(url,body);
-  }catch(e){console.warn('syncCliente:',e);}
 }
 
 function checkSyncStatus(){
