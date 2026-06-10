@@ -788,8 +788,19 @@ function getDespachos_(ss) {
   rows.filter(function(r){ return r[0]; }).forEach(function(r){
     var id = String(r[0]);
     if (!map[id]) {
+      // r[1] may be a Date object or string — normalize to YYYY-MM-DD
+      var rawFecha = r[1];
+      var fechaStr = "";
+      if (rawFecha instanceof Date) {
+        var y = rawFecha.getFullYear();
+        var m = ("0"+(rawFecha.getMonth()+1)).slice(-2);
+        var d2 = ("0"+rawFecha.getDate()).slice(-2);
+        fechaStr = y+"-"+m+"-"+d2;
+      } else {
+        fechaStr = String(rawFecha);
+      }
       map[id] = {
-        id:id, fecha:String(r[1]), tipo:String(r[2]),
+        id:id, fecha:fechaStr, tipo:String(r[2]),
         destinatario:String(r[3]), gd:String(r[4]),
         oc:String(r[5]), ov:String(r[6]), picking:String(r[7]),
         ciudad:String(r[8]), total:r[9], tipoBulto:String(r[10]),
