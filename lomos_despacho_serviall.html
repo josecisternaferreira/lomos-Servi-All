@@ -680,19 +680,23 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
         <div class="code-block" id="apps-script-code">// ── ENTRY POINTS ───────────────────────────────────────
 function doPost(e) {
   try {
-    var ss   = SpreadsheetApp.getActiveSpreadsheet();
-    var raw  = (e.parameter && e.parameter.payload)
-               ? e.parameter.payload
-               : e.postData.contents;
-    var data = JSON.parse(raw);
+    var ss  = SpreadsheetApp.getActiveSpreadsheet();
+    // Accept JSON from: application/json, text/plain, or form payload
+    var raw = "";
+    if (e.parameter && e.parameter.payload) {
+      raw = e.parameter.payload;
+    } else if (e.postData && e.postData.contents) {
+      raw = e.postData.contents;
+    }
+    var data   = JSON.parse(raw);
     var action = data.action || "saveDespacho";
-    if (action === "saveClientes")   return cors_(guardarClientes_(ss, data.clientes));
-    if (action === "saveCliente")    return cors_(guardarCliente_(ss, data.cliente));
-    if (action === "deleteCliente")  return cors_(eliminarCliente_(ss, data.id));
-    if (action === "getClientes")    return cors_(getClientes_(ss));
-    return cors_(guardarDespacho_(ss, data));
+    if (action === "saveClientes")  return ok_(guardarClientes_(ss, data.clientes));
+    if (action === "saveCliente")   return ok_(guardarCliente_(ss, data.cliente));
+    if (action === "deleteCliente") return ok_(eliminarCliente_(ss, data.id));
+    if (action === "getClientes")   return ok_(getClientes_(ss));
+    return ok_(guardarDespacho_(ss, data));
   } catch(err) {
-    return cors_(ok_({ok:false, error:err.message}));
+    return ok_({ok:false, error:err.message});
   }
 }
 
@@ -700,24 +704,20 @@ function doGet(e) {
   try {
     var ss  = SpreadsheetApp.getActiveSpreadsheet();
     var act = (e.parameter && e.parameter.action) || "getClientes";
-    if (act === "getClientes") return cors_(getClientes_(ss));
-    return cors_(ok_({ok:true, ping:true}));
+    if (act === "getClientes") return ok_(getClientes_(ss));
+    return ok_({ok:true, ping:true});
   } catch(err) {
-    return cors_(ok_({ok:false, error:err.message}));
+    return ok_({ok:false, error:err.message});
   }
 }
 
 // ── HELPERS ────────────────────────────────────────────
-function ok_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-// Wrap response with CORS headers so GitHub Pages can read it
-function cors_(response) {
-  return response; // GAS doesn't support custom headers on doGet/doPost
-                   // but publishing as "Anyone" handles this automatically
+function ok_(data) {
+  var output = ContentService.createTextOutput(
+    typeof data === "string" ? data : JSON.stringify(data)
+  );
+  output.setMimeType(ContentService.MimeType.JSON);
+  return output;
 }
 
 function sheet_(ss, name, headers, color) {
@@ -734,23 +734,23 @@ function sheet_(ss, name, headers, color) {
 
 // ── DESPACHOS ──────────────────────────────────────────
 function guardarDespacho_(ss, d) {
-  var h = sheet_(ss, "Despachos",
+  var h = sheet_(ss,"Despachos",
     ["ID","Fecha","Tipo","Cliente","Guia","OC","OV",
      "Picking","Ciudad","Bultos","TipoBulto","Ruta","Timestamp"],
     "#D0191A");
   h.appendRow([
-    d.id, d.fecha, d.tipo, d.destinatario,
+    d.id||"", d.fecha||"", d.tipo||"", d.destinatario||"",
     d.gd||d.guia||"", d.oc||"", d.ov||"", d.picking||"",
-    d.ciudad||"", d.total, d.tipoBulto||"", d.ruta||"",
+    d.ciudad||"", d.total||"", d.tipoBulto||"", d.ruta||"",
     new Date().toLocaleString("es-CL")
   ]);
-  return ok_({ok:true});
+  return {ok:true};
 }
 
 // ── CLIENTES — LEER ────────────────────────────────────
 function getClientes_(ss) {
   var h = ss.getSheetByName("Clientes");
-  if (!h || h.getLastRow() < 2) return ok_({ok:true, clientes:[]});
+  if (!h || h.getLastRow() < 2) return {ok:true, clientes:[]};
   var rows = h.getRange(2,1,h.getLastRow()-1,5).getValues();
   var map = {};
   rows.forEach(function(r) {
@@ -760,29 +760,27 @@ function getClientes_(ss) {
     if (!id || !nombre) return;
     if (!map[id]) map[id]={id:id,nombre:nombre,tipo:tipo,dirs:[]};
     if (dir||ciudad) map[id].dirs.push({
-      id: id+"_"+map[id].dirs.length,
+      id:id+"_"+map[id].dirs.length,
       dir:dir, ciudad:ciudad,
-      esDefault: map[id].dirs.length===0
+      esDefault:map[id].dirs.length===0
     });
   });
-  return ok_({ok:true, clientes:Object.values(map)});
+  return {ok:true, clientes:Object.values(map)};
 }
 
 // ── CLIENTES — ESCRIBIR ────────────────────────────────
 function guardarCliente_(ss, c) {
-  var h = sheet_(ss,"Clientes",
-    ["ID","Nombre","Tipo","Dirección","Ciudad"],"#1E40AF");
+  var h = sheet_(ss,"Clientes",["ID","Nombre","Tipo","Dirección","Ciudad"],"#1E40AF");
   borrar_(h, c.id);
   var dirs=(c.dirs&&c.dirs.length)?c.dirs:[{dir:"",ciudad:""}];
   dirs.forEach(function(d){
-    h.appendRow([c.id, c.nombre, c.tipo, d.dir||"", d.ciudad||""]);
+    h.appendRow([c.id,c.nombre,c.tipo,d.dir||"",d.ciudad||""]);
   });
-  return ok_({ok:true});
+  return {ok:true};
 }
 
 function guardarClientes_(ss, clientes) {
-  var h = sheet_(ss,"Clientes",
-    ["ID","Nombre","Tipo","Dirección","Ciudad"],"#1E40AF");
+  var h = sheet_(ss,"Clientes",["ID","Nombre","Tipo","Dirección","Ciudad"],"#1E40AF");
   if (h.getLastRow()>1)
     h.getRange(2,1,h.getLastRow()-1,5).clearContent();
   clientes.forEach(function(c){
@@ -791,13 +789,13 @@ function guardarClientes_(ss, clientes) {
       h.appendRow([c.id,c.nombre,c.tipo,d.dir||"",d.ciudad||""]);
     });
   });
-  return ok_({ok:true, count:clientes.length});
+  return {ok:true, count:clientes.length};
 }
 
 function eliminarCliente_(ss, id) {
   var h = ss.getSheetByName("Clientes");
   if (h) borrar_(h, id);
-  return ok_({ok:true});
+  return {ok:true};
 }
 
 function borrar_(h, id) {
@@ -1420,14 +1418,30 @@ function actualizarLocalCount(){const el=document.getElementById('local-count');
 // GOOGLE SHEETS SYNC — CLIENTES
 // ═══════════════════════════════════════════════════
 // From HTTPS (GitHub Pages) fetch works normally
-async function postViaForm(url, data){
+async function postViaForm(url,data){ await gasPost(url,data); }
+
+// GAS-compatible POST: text/plain bypasses CORS preflight
+// GAS reads via e.postData.contents — works from any origin
+async function gasPost(url, data){
   try{
-    await fetch(url,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
+    // First try with proper headers (works if GAS allows origin)
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify(data)
     });
-  }catch(e){console.warn('postViaForm:',e);}
+    return r;
+  } catch(e){
+    // Fallback: no-cors (fire and forget — can't read response but data arrives)
+    try{
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify(data)
+      });
+    } catch(e2){ console.warn('gasPost fallback failed:',e2); }
+  }
 }
 
 function updateSyncStatus(state, subtitle){
@@ -1489,17 +1503,13 @@ async function subirClientesASheets(){
   setSyncBtnsLoading(true);
   updateSyncStatus('loading',`Subiendo ${clientes.length} clientes…`);
   try{
-    await fetch(url,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'saveClientes',clientes})
-    });
+    await gasPost(url,{action:'saveClientes',clientes});
     const ts=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
     updateSyncStatus('ok',`Subido · ${clientes.length} clientes · ${ts}`);
     showToast(`✓ ${clientes.length} clientes subidos`,'success');
   }catch(err){
     updateSyncStatus('error','Error al subir: '+err.message);
-    showToast('Error al subir a Sheets','error');
+    showToast('Error: '+err.message,'error');
   }
   setSyncBtnsLoading(false);
 }
@@ -1511,11 +1521,7 @@ async function syncClienteSheets(cliente, deleted=false){
     ?{action:'deleteCliente',id:cliente.id}
     :{action:'saveCliente',cliente};
   try{
-    await fetch(url,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    });
+    await gasPost(url,body);
   }catch(e){console.warn('syncCliente:',e);}
 }
 
