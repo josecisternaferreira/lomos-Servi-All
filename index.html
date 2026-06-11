@@ -775,6 +775,26 @@ function guardarDespacho_(ss, d) {
       new Date().toLocaleString("es-CL")
     ]);
   });
+
+  // ── Duplicar en hoja CONSOLIDADO si ruta='CONSOLIDADO' ──────────────
+  if ((d.ruta||"").toUpperCase().trim() === "CONSOLIDADO") {
+    var hC = sheet_(ss,"CONSOLIDADO",
+      ["ID","Fecha","Tipo","Cliente","Guia","OC","OV","Picking",
+       "Ciudad","Total Bultos","TipoBulto","Ruta",
+       "N° Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
+      "#065f46");
+    bultos.forEach(function(b){
+      hC.appendRow([
+        d.id||"", d.fecha||"", d.tipo||"", d.destinatario||"",
+        d.gd||d.guia||"", d.oc||"", d.ov||"", d.picking||"",
+        d.ciudad||"", d.total||1, d.tipoBulto||"", d.ruta||"",
+        b.num||1, b.alto||"", b.ancho||"", b.largo||"",
+        b.dims||"", b.peso||"",
+        new Date().toLocaleString("es-CL")
+      ]);
+    });
+  }
+
   return {ok:true};
 }
 
@@ -1493,7 +1513,52 @@ async function sincronizarHistorial(){
 function cargarHistorial(){despachos=JSON.parse(localStorage.getItem('despachos_serviall')||'[]');renderHistorial(despachos);actualizarBadge();}
 function renderHistorial(lista){const tbody=document.getElementById('historial-tbody');if(!lista.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"/><polyline points="14 2 14 8 20 8" stroke="currentColor"/></svg><p>Sin despachos</p></div></td></tr>`;return;}tbody.innerHTML=lista.map(d=>{const tipo=d.tipo==='traslado'?'<span class="badge-tipo badge-traslado">Transferencia</span>':'<span class="badge-tipo badge-ov">OV</span>';const estado=d.sincronizado?'<span class="badge-tipo badge-sync">✓ Sheets</span>':'<span class="badge-tipo badge-local">Local</span>';const fecha=fmtFecha(d.fecha);return`<tr><td>${fecha}</td><td>${tipo}</td><td><strong>${d.destinatario||'—'}</strong></td><td>${d.gd||d.guia||'—'}</td><td style="font-size:12px;">${d.tipo==='traslado'?(d.oc||'—'):`OC:${d.oc||'—'} OV:${d.ov||'—'}`}</td><td>${d.picking||'—'}</td><td style="text-align:center;font-weight:700;">${d.total||1}</td><td>${d.peso||'—'}</td><td>${estado}</td><td style="white-space:nowrap;"><button class="btn btn-ghost" style="padding:4px 8px;" onclick="reimprimir('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button><button class="btn btn-ghost" style="padding:4px 8px;color:#ef4444;" onclick="eliminarDespacho('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>`;}).join('');}
 function filtrarHistorial(){const q=document.getElementById('search-input').value.toLowerCase();const fecha=document.getElementById('filter-fecha').value;const tipo=document.getElementById('filter-tipo').value;renderHistorial(despachos.filter(d=>{const mq=!q||[d.destinatario,d.cliente,d.picking,d.gd,d.guia,d.ov,d.oc].some(x=>(x||'').toLowerCase().includes(q));return mq&&(!fecha||d.fecha===fecha)&&(!tipo||d.tipo===tipo);}));}
-function reimprimir(id){const d=despachos.find(x=>x.id===id);if(!d)return;currentData=d;setTipo(d.tipo);const grid=document.getElementById('labels-grid');grid.innerHTML='';for(let i=1;i<=(d.total||1);i++){const w=document.createElement('div');w.className='label-wrapper';w.innerHTML=(d.tipo==='traslado'?htmlLomoTraslado(d,i):htmlLomoOV(d,i))+`<div><button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="imprimirUna(${i-1})">Imprimir</button></div>`;grid.appendChild(w);}document.getElementById('preview-section').style.display='block';switchTab('nuevo');setTimeout(()=>document.getElementById('preview-section').scrollIntoView({behavior:'smooth'}),300);}
+function reimprimir(id){
+  const d=despachos.find(x=>x.id===id);
+  if(!d) return;
+
+  // Reconstruct bultos array if missing (despachos from Sheets may not have it)
+  if(!d.bultos || !d.bultos.length){
+    const n=parseInt(d.total)||1;
+    d.bultos=Array.from({length:n},(_,i)=>({
+      num:i+1,
+      alto:d.alto||'', ancho:d.ancho||'', largo:d.largo||'',
+      dims:d.dims||'', peso:d.peso||''
+    }));
+  }
+
+  // Ensure fechaFmt exists
+  if(!d.fechaFmt) d.fechaFmt=fmtFecha(d.fecha);
+
+  // Ensure all fields have fallback values
+  d.cliente    = d.cliente    || d.destinatario || '—';
+  d.bodega     = d.bodega     || '—';
+  d.ciudad     = d.ciudad     || '—';
+  d.sede       = d.sede       || '—';
+  d.guia       = d.guia       || d.gd || '—';
+  d.oc         = d.oc         || '—';
+  d.ov         = d.ov         || '—';
+  d.picking    = d.picking    || '—';
+  d.ruta       = d.ruta       || '—';
+  d.tipoBulto  = d.tipoBulto  || 'BULTO';
+
+  currentData=d;
+  setTipo(d.tipo);
+  const grid=document.getElementById('labels-grid');
+  grid.innerHTML='';
+  d.bultos.forEach((b,i)=>{
+    const w=document.createElement('div');
+    w.className='label-wrapper';
+    w.innerHTML=(d.tipo==='traslado'?htmlLomoTraslado(d,b):htmlLomoOV(d,b))+
+      `<div><button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="imprimirUna(${i})">Imprimir</button></div>`;
+    grid.appendChild(w);
+  });
+  document.getElementById('preview-section').style.display='block';
+  document.getElementById('preview-title').textContent=`${d.total||1} lomo(s) — Reimprimir`;
+  switchTab('nuevo');
+  setTimeout(()=>document.getElementById('preview-section').scrollIntoView({behavior:'smooth'}),300);
+}
+
 function eliminarDespacho(id){if(!confirm('¿Eliminar?'))return;despachos=despachos.filter(d=>d.id!==id);localStorage.setItem('despachos_serviall',JSON.stringify(despachos));actualizarBadge();actualizarLocalCount();cargarHistorial();}
 function exportarCSV(){if(!despachos.length){showToast('No hay datos','error');return;}const h=['ID','Fecha','Tipo','Destinatario','Guía','OC','OV','Picking','Ciudad','Bultos','TipoBulto','Peso','Alto','Ancho','Largo','Ruta','Sync'];const rows=despachos.map(d=>[d.id,d.fecha,d.tipo,d.destinatario,d.gd||d.guia,d.oc,d.ov,d.picking,'',d.ciudad,d.total,d.tipoBulto,d.peso,d.alto,d.ancho,d.largo,d.ruta,d.sincronizado?'Sí':'No'].map(x=>`"${(x||'').toString().replace(/"/g,'""')}"`).join(','));const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+[h.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8;'}));a.download=`lomos_${hoy()}.csv`;a.click();}
 function exportarClientesJSON(){
