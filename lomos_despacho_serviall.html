@@ -788,15 +788,20 @@ function getDespachos_(ss) {
   rows.filter(function(r){ return r[0]; }).forEach(function(r){
     var id = String(r[0]);
     if (!map[id]) {
-      // r[1] may be a Date object or string — normalize to YYYY-MM-DD
+      // Normalize fecha to YYYY-MM-DD regardless of Sheets format
       var rawFecha = r[1];
       var fechaStr = "";
-      if (rawFecha instanceof Date) {
-        var y = rawFecha.getFullYear();
-        var m = ("0"+(rawFecha.getMonth()+1)).slice(-2);
-        var d2 = ("0"+rawFecha.getDate()).slice(-2);
-        fechaStr = y+"-"+m+"-"+d2;
-      } else {
+      try {
+        var d2 = (rawFecha instanceof Date) ? rawFecha : new Date(rawFecha);
+        if (!isNaN(d2.getTime())) {
+          var y = d2.getFullYear();
+          var mo = ("0"+(d2.getMonth()+1)).slice(-2);
+          var dy = ("0"+d2.getDate()).slice(-2);
+          fechaStr = y+"-"+mo+"-"+dy;
+        } else {
+          fechaStr = String(rawFecha);
+        }
+      } catch(ex) {
         fechaStr = String(rawFecha);
       }
       map[id] = {
@@ -1328,7 +1333,22 @@ function recogerDatos(tipo){
   }
 }
 function v(id){return document.getElementById(id)?.value?.trim()||'';}
-function fmtFecha(f){if(!f)return'';return new Date(f+'T12:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function fmtFecha(f){
+  if(!f||f==='Invalid Date'||f==='')return'—';
+  // Already formatted dd/mm/yyyy or dd-mm-yyyy
+  if(/^\d{2}[\-\/]\d{2}[\-\/]\d{4}$/.test(String(f))) return String(f).replace(/-/g,'/');
+  // YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(String(f))) {
+    const [y,m,d]=String(f).split('-');
+    return d+'/'+m+'/'+y;
+  }
+  // Try generic parse with midday to avoid timezone shift
+  try{
+    const d=new Date(String(f)+'T12:00:00');
+    if(isNaN(d.getTime())) return String(f);
+    return d.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  }catch(e){return String(f);}
+}
 
 function htmlLomoTraslado(d,b){
   const logoCell=`<td class="lt-cell" rowspan="4" style="width:130px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;"><img src="${LOGO_B64}" style="width:118px;display:block;margin:0 auto;" alt="ServiAll"/></td>`;
@@ -1471,7 +1491,7 @@ async function sincronizarHistorial(){
 }
 
 function cargarHistorial(){despachos=JSON.parse(localStorage.getItem('despachos_serviall')||'[]');renderHistorial(despachos);actualizarBadge();}
-function renderHistorial(lista){const tbody=document.getElementById('historial-tbody');if(!lista.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"/><polyline points="14 2 14 8 20 8" stroke="currentColor"/></svg><p>Sin despachos</p></div></td></tr>`;return;}tbody.innerHTML=lista.map(d=>{const tipo=d.tipo==='traslado'?'<span class="badge-tipo badge-traslado">Transferencia</span>':'<span class="badge-tipo badge-ov">OV</span>';const estado=d.sincronizado?'<span class="badge-tipo badge-sync">✓ Sheets</span>':'<span class="badge-tipo badge-local">Local</span>';const fecha=d.fecha?new Date(d.fecha+'T12:00:00').toLocaleDateString('es-CL'):'—';return`<tr><td>${fecha}</td><td>${tipo}</td><td><strong>${d.destinatario||'—'}</strong></td><td>${d.gd||d.guia||'—'}</td><td style="font-size:12px;">${d.tipo==='traslado'?(d.oc||'—'):`OC:${d.oc||'—'} OV:${d.ov||'—'}`}</td><td>${d.picking||'—'}</td><td style="text-align:center;font-weight:700;">${d.total||1}</td><td>${d.peso||'—'}</td><td>${estado}</td><td style="white-space:nowrap;"><button class="btn btn-ghost" style="padding:4px 8px;" onclick="reimprimir('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button><button class="btn btn-ghost" style="padding:4px 8px;color:#ef4444;" onclick="eliminarDespacho('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>`;}).join('');}
+function renderHistorial(lista){const tbody=document.getElementById('historial-tbody');if(!lista.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor"/><polyline points="14 2 14 8 20 8" stroke="currentColor"/></svg><p>Sin despachos</p></div></td></tr>`;return;}tbody.innerHTML=lista.map(d=>{const tipo=d.tipo==='traslado'?'<span class="badge-tipo badge-traslado">Transferencia</span>':'<span class="badge-tipo badge-ov">OV</span>';const estado=d.sincronizado?'<span class="badge-tipo badge-sync">✓ Sheets</span>':'<span class="badge-tipo badge-local">Local</span>';const fecha=fmtFecha(d.fecha);return`<tr><td>${fecha}</td><td>${tipo}</td><td><strong>${d.destinatario||'—'}</strong></td><td>${d.gd||d.guia||'—'}</td><td style="font-size:12px;">${d.tipo==='traslado'?(d.oc||'—'):`OC:${d.oc||'—'} OV:${d.ov||'—'}`}</td><td>${d.picking||'—'}</td><td style="text-align:center;font-weight:700;">${d.total||1}</td><td>${d.peso||'—'}</td><td>${estado}</td><td style="white-space:nowrap;"><button class="btn btn-ghost" style="padding:4px 8px;" onclick="reimprimir('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button><button class="btn btn-ghost" style="padding:4px 8px;color:#ef4444;" onclick="eliminarDespacho('${d.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td></tr>`;}).join('');}
 function filtrarHistorial(){const q=document.getElementById('search-input').value.toLowerCase();const fecha=document.getElementById('filter-fecha').value;const tipo=document.getElementById('filter-tipo').value;renderHistorial(despachos.filter(d=>{const mq=!q||[d.destinatario,d.cliente,d.picking,d.gd,d.guia,d.ov,d.oc].some(x=>(x||'').toLowerCase().includes(q));return mq&&(!fecha||d.fecha===fecha)&&(!tipo||d.tipo===tipo);}));}
 function reimprimir(id){const d=despachos.find(x=>x.id===id);if(!d)return;currentData=d;setTipo(d.tipo);const grid=document.getElementById('labels-grid');grid.innerHTML='';for(let i=1;i<=(d.total||1);i++){const w=document.createElement('div');w.className='label-wrapper';w.innerHTML=(d.tipo==='traslado'?htmlLomoTraslado(d,i):htmlLomoOV(d,i))+`<div><button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="imprimirUna(${i-1})">Imprimir</button></div>`;grid.appendChild(w);}document.getElementById('preview-section').style.display='block';switchTab('nuevo');setTimeout(()=>document.getElementById('preview-section').scrollIntoView({behavior:'smooth'}),300);}
 function eliminarDespacho(id){if(!confirm('¿Eliminar?'))return;despachos=despachos.filter(d=>d.id!==id);localStorage.setItem('despachos_serviall',JSON.stringify(despachos));actualizarBadge();actualizarLocalCount();cargarHistorial();}
