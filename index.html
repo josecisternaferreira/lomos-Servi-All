@@ -54,7 +54,7 @@ header .subtitle{font-size:12px;color:var(--gray-400);margin-left:4px;border-lef
 .card-body{padding:24px;}
 
 /* TIPO SELECTOR */
-.tipo-selector{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.tipo-selector{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;}
 .tipo-card{border:2px solid var(--gray-200);border-radius:var(--radius);padding:18px 20px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:14px;}
 .tipo-card:hover,.tipo-card.active{border-color:var(--red);background:var(--red-light);}
 .tipo-card .tipo-icon{width:42px;height:42px;border-radius:8px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
@@ -348,9 +348,6 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes
     <span class="badge" id="badge-clientes">0</span>
   </button>
-  <button class="tab-btn" onclick="switchTab('ventaweb')">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Venta Web
-  </button>
   <button class="tab-btn" onclick="switchTab('config')">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Configuración
   </button>
@@ -379,6 +376,10 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
         <div class="tipo-card" id="tipo-ov" onclick="setTipo('ov')">
           <div class="tipo-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
           <div><div class="tipo-label">Orden de Venta</div><div class="tipo-desc">Guías valoradas a cliente</div></div>
+        </div>
+        <div class="tipo-card" id="tipo-ventaweb" onclick="setTipo('ventaweb')">
+          <div class="tipo-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <div><div class="tipo-label">Venta Web</div><div class="tipo-desc">2 lomos: remitente + destinatario</div></div>
         </div>
       </div>
     </div>
@@ -514,46 +515,51 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
     </div>
   </div>
 
-  <!-- PREVIEW -->
-  <div class="preview-section" id="preview-section">
-    <div class="preview-header">
-      <h3 id="preview-title">Lomos generados</h3>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-secondary" onclick="imprimirTodas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir todos</button>
-        <button class="btn btn-primary" id="btn-guardar" onclick="guardarDespacho()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar Despacho</button>
-      </div>
-    </div>
-    <div class="labels-grid" id="labels-grid"></div>
-  </div>
-</div>
-
-<!-- ===== VENTA WEB ===== -->
-<div class="tab-panel" id="tab-ventaweb">
-
-  <div class="card">
+  <!-- FORM VENTA WEB -->
+  <div class="card" id="form-ventaweb" style="display:none;">
     <div class="card-header">
-      <div class="card-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-      <div><h2>Venta Web</h2><p>Genera dos lomos por despacho: Remitente + Destinatario</p></div>
+      <div class="card-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div><h2>Venta Web</h2><p>Genera lomo remitente + lomo destinatario por cada bulto</p></div>
     </div>
     <div class="card-body">
-      <div class="form-grid">
 
-        <div class="form-group full" style="background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:1px solid var(--gray-200);">
-          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">📦 Remitente (fijo — Servi-All)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:var(--gray-600);">
-            <div><strong>Empresa:</strong> SERVIALL</div>
-            <div><strong>RUT:</strong> 76.035.324-8</div>
-            <div><strong>Dirección:</strong> GRAL. SAN MARTIN 8400 COLINA</div>
-            <div><strong>Ciudad:</strong> SANTIAGO</div>
-            <div><strong>Teléfono:</strong> 56 9 51945395</div>
-            <div><strong>Correo:</strong> cmojica@serviall.cl</div>
+      <!-- REMITENTE FIJO -->
+      <div id="vw-remitente-display" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;">📦 Remitente (Servi-All)</div>
+          <button class="btn btn-ghost" style="font-size:12px;padding:4px 10px;" onclick="toggleEditRemitente()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+        </div>
+        <div id="vw-rem-view" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:13px;color:var(--gray-600);">
+          <div><strong>Empresa:</strong> <span id="v-empresa"></span></div>
+          <div><strong>RUT:</strong> <span id="v-rut-rem"></span></div>
+          <div><strong>Dirección:</strong> <span id="v-dir-rem"></span></div>
+          <div><strong>Ciudad:</strong> <span id="v-ciudad-rem"></span></div>
+          <div><strong>Teléfono:</strong> <span id="v-tel-rem"></span></div>
+          <div><strong>Correo:</strong> <span id="v-correo-rem"></span></div>
+        </div>
+        <!-- EDIT FORM (hidden by default) -->
+        <div id="vw-rem-edit" style="display:none;margin-top:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group"><label>Empresa</label><input type="text" id="rem-empresa" /></div>
+            <div class="form-group"><label>RUT</label><input type="text" id="rem-rut" /></div>
+            <div class="form-group"><label>Dirección</label><input type="text" id="rem-dir" /></div>
+            <div class="form-group"><label>Ciudad</label><input type="text" id="rem-ciudad" /></div>
+            <div class="form-group"><label>Teléfono</label><input type="text" id="rem-tel" /></div>
+            <div class="form-group"><label>Correo</label><input type="text" id="rem-correo" /></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn btn-primary" style="font-size:12px;padding:7px 14px;" onclick="guardarRemitente()">✓ Guardar cambios</button>
+            <button class="btn btn-ghost" style="font-size:12px;" onclick="toggleEditRemitente()">Cancelar</button>
           </div>
         </div>
+      </div>
 
-        <div class="form-group full" style="border-top:1px solid var(--gray-100);padding-top:16px;margin-top:4px;">
-          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🧑 Datos del Destinatario</div>
-        </div>
-
+      <!-- DESTINATARIO -->
+      <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🧑 Destinatario</div>
+      <div class="form-grid">
         <div class="form-group full">
           <label>Nombre / Razón Social *</label>
           <input type="text" id="vw-nombre" placeholder="Ej: DANTE NICOLAS PAINE MONSALVES" style="text-transform:uppercase;font-weight:700;font-size:15px;"/>
@@ -570,11 +576,6 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
           <label>Dirección destino</label>
           <input type="text" id="vw-dir" placeholder="Ej: MAIPU 1595"/>
         </div>
-
-        <div class="form-group full" style="border-top:1px solid var(--gray-100);padding-top:16px;margin-top:4px;">
-          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">📋 Datos del Despacho</div>
-        </div>
-
         <div class="form-group">
           <label>N° de Guía</label>
           <input type="text" id="vw-guia" placeholder="Ej: 161015"/>
@@ -599,32 +600,27 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
           <input type="text" id="vw-picking" placeholder="Ej: 139736"/>
         </div>
         <div class="form-group">
-          <label>Correo destino <span style="font-weight:400;color:var(--gray-400);text-transform:none;">(opcional)</span></label>
+          <label>Correo <span style="font-weight:400;color:var(--gray-400);text-transform:none;">(opcional)</span></label>
           <input type="text" id="vw-email" placeholder="Ej: ayuda@allclick.cl"/>
         </div>
-
-        <div class="form-group full" style="border-top:1px solid var(--gray-100);padding-top:16px;margin-top:4px;">
-          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">📦 Bultos</div>
+        <div class="form-group full">
+          <label>Bultos</label>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
             <label style="white-space:nowrap;">N° de bultos:</label>
             <input type="number" id="vw-total" value="1" min="1" max="50" style="width:80px;text-align:center;" oninput="generarFilasBultos('vw')"/>
           </div>
           <div class="bultos-table-wrap">
             <table class="bultos-table">
-              <thead><tr>
-                <th>#</th><th>Tipo</th><th>Alto (cm)</th>
-                <th>Ancho (cm)</th><th>Largo (cm)</th><th>Peso (kg)</th>
-              </tr></thead>
+              <thead><tr><th>#</th><th>Tipo</th><th>Alto (cm)</th><th>Ancho (cm)</th><th>Largo (cm)</th><th>Peso (kg)</th></tr></thead>
               <tbody id="vw-bultos-tbody"></tbody>
             </table>
           </div>
         </div>
-
       </div>
       <div class="form-actions">
         <button class="btn btn-primary" onclick="generarLomosVentaWeb()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          Generar Lomos (Remitente + Destinatario)
+          Generar Lomos
         </button>
         <button class="btn btn-secondary" onclick="limpiarVW()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
@@ -635,21 +631,15 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
   </div>
 
   <!-- PREVIEW -->
-  <div class="preview-section" id="vw-preview-section">
+  <div class="preview-section" id="preview-section">
     <div class="preview-header">
-      <h3 id="vw-preview-title">Lomos generados</h3>
+      <h3 id="preview-title">Lomos generados</h3>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-secondary" onclick="vwImprimirTodos()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Imprimir todos
-        </button>
-        <button class="btn btn-primary" id="vw-btn-guardar" onclick="guardarDespachoVW()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Guardar Despacho
-        </button>
+        <button class="btn btn-secondary" onclick="imprimirTodas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir todos</button>
+        <button class="btn btn-primary" id="btn-guardar" onclick="guardarDespacho()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar Despacho</button>
       </div>
     </div>
-    <div class="labels-grid" id="vw-labels-grid"></div>
+    <div class="labels-grid" id="labels-grid"></div>
   </div>
 </div>
 
@@ -1093,6 +1083,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   generarFilasBultos('o');
   generarFilasBultos('vw');
   document.getElementById('vw-fecha').value=hoy();
+  // Load saved remitente if exists
+  const savedRem=localStorage.getItem('vw_remitente');
+  if(savedRem){try{Object.assign(VW_REMITENTE,JSON.parse(savedRem));}catch(e){}}
   if(config.scriptUrl){
     document.getElementById('script-url').value=config.scriptUrl;
     document.getElementById('config-alert').classList.add('hidden');
@@ -1131,21 +1124,21 @@ function switchTab(tab){
   if(tab==='historial'){cargarHistorial();sincronizarHistorial();}
   if(tab==='config')actualizarLocalCount();
   if(tab==='clientes'){renderClientes();sincronizarClientes();}
-  if(tab==='ventaweb') generarFilasBultos('vw');
+  if(tab==='ventaweb'){actualizarViewRemitente();generarFilasBultos('vw');}
 }
 function setTipo(tipo){
   tipoActivo=tipo;
   document.getElementById('tipo-traslado').classList.toggle('active',tipo==='traslado');
   document.getElementById('tipo-ov').classList.toggle('active',tipo==='ov');
+  document.getElementById('tipo-ventaweb').classList.toggle('active',tipo==='ventaweb');
   document.getElementById('form-traslado').style.display=tipo==='traslado'?'block':'none';
   document.getElementById('form-ov').style.display=tipo==='ov'?'block':'none';
+  document.getElementById('form-ventaweb').style.display=tipo==='ventaweb'?'block':'none';
   document.getElementById('preview-section').style.display='none';
   currentData=null;
+  if(tipo==='ventaweb'){actualizarViewRemitente();generarFilasBultos('vw');}
 }
 
-// ═══════════════════════════════════════════════════
-// AUTOCOMPLETE + SELECTOR DE DIRECCIÓN
-// ═══════════════════════════════════════════════════
 function acInput(input,tipo){
   const q=input.value.trim().toUpperCase();
   document.getElementById(input.id+'-clear').style.display=q?'block':'none';
@@ -1916,6 +1909,47 @@ const VW_REMITENTE = {
   correo: 'cmojica@serviall.cl'
 };
 
+// ── REMITENTE EDITABLE ────────────────────────────────
+function actualizarViewRemitente(){
+  document.getElementById('v-empresa').textContent   = VW_REMITENTE.empresa;
+  document.getElementById('v-rut-rem').textContent   = VW_REMITENTE.rut;
+  document.getElementById('v-dir-rem').textContent   = VW_REMITENTE.direccion;
+  document.getElementById('v-ciudad-rem').textContent= VW_REMITENTE.ciudad;
+  document.getElementById('v-tel-rem').textContent   = VW_REMITENTE.telefono;
+  document.getElementById('v-correo-rem').textContent= VW_REMITENTE.correo;
+}
+
+function toggleEditRemitente(){
+  const view=document.getElementById('vw-rem-view');
+  const edit=document.getElementById('vw-rem-edit');
+  const editing=edit.style.display==='block';
+  if(!editing){
+    // populate edit fields
+    document.getElementById('rem-empresa').value = VW_REMITENTE.empresa;
+    document.getElementById('rem-rut').value     = VW_REMITENTE.rut;
+    document.getElementById('rem-dir').value     = VW_REMITENTE.direccion;
+    document.getElementById('rem-ciudad').value  = VW_REMITENTE.ciudad;
+    document.getElementById('rem-tel').value     = VW_REMITENTE.telefono;
+    document.getElementById('rem-correo').value  = VW_REMITENTE.correo;
+  }
+  view.style.display = editing ? 'grid' : 'none';
+  edit.style.display = editing ? 'none' : 'block';
+}
+
+function guardarRemitente(){
+  VW_REMITENTE.empresa   = document.getElementById('rem-empresa').value.trim();
+  VW_REMITENTE.rut       = document.getElementById('rem-rut').value.trim();
+  VW_REMITENTE.direccion = document.getElementById('rem-dir').value.trim();
+  VW_REMITENTE.ciudad    = document.getElementById('rem-ciudad').value.trim();
+  VW_REMITENTE.telefono  = document.getElementById('rem-tel').value.trim();
+  VW_REMITENTE.correo    = document.getElementById('rem-correo').value.trim();
+  // persist to localStorage
+  localStorage.setItem('vw_remitente', JSON.stringify(VW_REMITENTE));
+  actualizarViewRemitente();
+  toggleEditRemitente();
+  showToast('✓ Datos del remitente actualizados','success');
+}
+
 function generarLomosVentaWeb(){
   const nombre = document.getElementById('vw-nombre').value.trim().toUpperCase();
   if(!nombre){showToast('Ingresa el nombre del destinatario','error');return;}
@@ -1946,7 +1980,7 @@ function generarLomosVentaWeb(){
   };
   currentDataVW = d;
 
-  const grid = document.getElementById('vw-labels-grid');
+  const grid = document.getElementById('labels-grid');
   grid.innerHTML = '';
 
   d.bultos.forEach((b,i)=>{
@@ -1969,9 +2003,9 @@ function generarLomosVentaWeb(){
     grid.appendChild(wD);
   });
 
-  const ps = document.getElementById('vw-preview-section');
+  const ps = document.getElementById('preview-section');
   ps.style.display = 'block';
-  document.getElementById('vw-preview-title').textContent =
+  document.getElementById('preview-title').textContent =
     `${total} bulto${total>1?'s':''} — ${total*2} lomos (${total} remitente + ${total} destinatario)`;
   ps.scrollIntoView({behavior:'smooth', block:'start'});
 }
