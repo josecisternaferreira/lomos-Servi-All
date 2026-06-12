@@ -2040,21 +2040,20 @@ function htmlLomoVWRemitente(d, b){
 function htmlLomoVWDest(d, b){
   return`<table class="lomo-vw">
     <tr>
-      <td class="lw-cell" style="width:120px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;" rowspan="5">
-        <img src="${LOGO_B64}" style="width:108px;display:block;margin:0 auto;" alt="ServiAll"/>
+      <td class="lw-cell" rowspan="4" style="width:130px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;">
+        <img src="${LOGO_B64}" style="width:118px;display:block;margin:0 auto;" alt="ServiAll"/>
       </td>
       <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:20px;font-weight:900;padding:5px 8px;">${d.nombre}</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:15px;">RUT: ${d.rut||'—'}</td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:15px;font-weight:700;">RUT: ${d.rut||'—'}</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:17px;font-weight:600;">${d.dir||'—'}</td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;font-weight:600;">${d.dir||'—'}</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;">${d.tel||'—'}</td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:15px;">CEL:${d.tel||'—'}</td>
     </tr>
-
     <tr>
       <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">N° DE GUÍA:</span></td>
       <td class="lw-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${d.guia||'—'}</span></td>
@@ -2068,18 +2067,18 @@ function htmlLomoVWDest(d, b){
       <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE VENTA:</span></td>
       <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.ov||'—'}</span></td>
       <td class="lw-cell"><span class="lw-label">PICKING:</span></td>
-      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value" style="font-size:16px;font-weight:900;">${d.picking||'—'}</span></td>
+      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${d.picking||'—'}</span></td>
     </tr>
     <tr>
       <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">${b.tipo||'BULTO'}</span></td>
       <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${b.num} DE ${d.total}</span></td>
       <td class="lw-cell"><span class="lw-label">MED.:</span></td>
-      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${b.dims||'—'}</span></td>
+      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${b.dims||'—'}</span></td>
     </tr>
     <tr>
       <td class="lw-cell lw-cell-left lw-cell-bottom" colspan="2"><span class="lw-label">PESO</span></td>
       <td class="lw-cell lw-cell-bottom" colspan="3" style="text-align:center;"><span class="lw-value">${b.peso||'—'}</span></td>
-      <td class="lw-cell lw-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;font-size:15px;">${d.email||''}</td>
+      <td class="lw-cell lw-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;font-size:12px;">AYUDA@ALLCLICK.CL</td>
     </tr>
   </table>`;
 }
@@ -2107,16 +2106,16 @@ function buildPrintVW(indices){
     </table></div>`;
 
     const dest = `<div class="print-lomo-ov"><table class="ptable">
-      <tr>${logoCell}<td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:14pt;font-weight:900;">${d.nombre}</td></tr>
-      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">RUT: ${d.rut||'—'}</td></tr>
+      <tr><td class="p-logo" rowspan="4" style="border-left:2px solid #000;background:#fff;text-align:center;vertical-align:middle;padding:1mm 2mm;"><img src="${LOGO_B64}" style="width:32mm;display:block;margin:0 auto;" alt="ServiAll"/></td>
+        <td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:14pt;font-weight:900;">${d.nombre}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;font-weight:700;">RUT: ${d.rut||'—'}</td></tr>
       <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${d.dir||'—'}</td></tr>
-      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">${d.tel||'—'}</td></tr>
-
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">CEL:${d.tel||'—'}</td></tr>
       <tr><td colspan="2" class="p-border-left"><span class="p-label">N° DE GUÍA:</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.guia||'—'}</span></td></tr>
       <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.oc}</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
       <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.ov||'—'}</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
-      <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
-      <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;text-align:center;font-size:9pt;">${d.email||''}</td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${b.dims||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;text-align:center;font-size:8pt;">AYUDA@ALLCLICK.CL</td></tr>
     </table></div>`;
 
     return rem + dest;
