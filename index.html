@@ -348,6 +348,9 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes
     <span class="badge" id="badge-clientes">0</span>
   </button>
+  <button class="tab-btn" onclick="switchTab('ventaweb')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Venta Web
+  </button>
   <button class="tab-btn" onclick="switchTab('config')">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Configuración
   </button>
@@ -521,6 +524,132 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
       </div>
     </div>
     <div class="labels-grid" id="labels-grid"></div>
+  </div>
+</div>
+
+<!-- ===== VENTA WEB ===== -->
+<div class="tab-panel" id="tab-ventaweb">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div><h2>Venta Web</h2><p>Genera dos lomos por despacho: Remitente + Destinatario</p></div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+
+        <div class="form-group full" style="background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:1px solid var(--gray-200);">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">📦 Remitente (fijo — Servi-All)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:var(--gray-600);">
+            <div><strong>Empresa:</strong> SERVIALL</div>
+            <div><strong>RUT:</strong> 76.035.324-8</div>
+            <div><strong>Dirección:</strong> GRAL. SAN MARTIN 8400 COLINA</div>
+            <div><strong>Ciudad:</strong> SANTIAGO</div>
+            <div><strong>Teléfono:</strong> 56 9 51945395</div>
+            <div><strong>Correo:</strong> cmojica@serviall.cl</div>
+          </div>
+        </div>
+
+        <div class="form-group full" style="border-top:1px solid var(--gray-100);padding-top:16px;margin-top:4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">🧑 Datos del Destinatario</div>
+        </div>
+
+        <div class="form-group full">
+          <label>Nombre / Razón Social *</label>
+          <input type="text" id="vw-nombre" placeholder="Ej: DANTE NICOLAS PAINE MONSALVES" style="text-transform:uppercase;font-weight:700;font-size:15px;"/>
+        </div>
+        <div class="form-group">
+          <label>RUT</label>
+          <input type="text" id="vw-rut" placeholder="Ej: 76.563.895-K"/>
+        </div>
+        <div class="form-group">
+          <label>Teléfono / Celular</label>
+          <input type="text" id="vw-tel" placeholder="Ej: +56 9 9392 8641"/>
+        </div>
+        <div class="form-group full">
+          <label>Dirección destino</label>
+          <input type="text" id="vw-dir" placeholder="Ej: MAIPU 1595"/>
+        </div>
+
+        <div class="form-group full" style="border-top:1px solid var(--gray-100);padding-top:16px;margin-top:4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;">📋 Datos del Despacho</div>
+        </div>
+
+        <div class="form-group">
+          <label>N° de Guía</label>
+          <input type="text" id="vw-guia" placeholder="Ej: 161015"/>
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="vw-fecha"/>
+        </div>
+        <div class="form-group">
+          <label>OC (WEB-...)</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:700;color:var(--gray-500);white-space:nowrap;">WEB-</span>
+            <input type="text" id="vw-oc-num" placeholder="40893" style="flex:1;"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Orden de Venta</label>
+          <input type="text" id="vw-ov" placeholder="Ej: 10114788"/>
+        </div>
+        <div class="form-group">
+          <label>N° Picking</label>
+          <input type="text" id="vw-picking" placeholder="Ej: 139736"/>
+        </div>
+        <div class="form-group">
+          <label>Correo destino <span style="font-weight:400;color:var(--gray-400);text-transform:none;">(opcional)</span></label>
+          <input type="text" id="vw-email" placeholder="Ej: ayuda@allclick.cl"/>
+        </div>
+
+        <div class="form-group full" style="border-top:1px solid var(--gray-100);padding-top:16px;margin-top:4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;">📦 Bultos</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <label style="white-space:nowrap;">N° de bultos:</label>
+            <input type="number" id="vw-total" value="1" min="1" max="50" style="width:80px;text-align:center;" oninput="generarFilasBultos('vw')"/>
+          </div>
+          <div class="bultos-table-wrap">
+            <table class="bultos-table">
+              <thead><tr>
+                <th>#</th><th>Tipo</th><th>Alto (cm)</th>
+                <th>Ancho (cm)</th><th>Largo (cm)</th><th>Peso (kg)</th>
+              </tr></thead>
+              <tbody id="vw-bultos-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="generarLomosVentaWeb()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          Generar Lomos (Remitente + Destinatario)
+        </button>
+        <button class="btn btn-secondary" onclick="limpiarVW()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-section" id="vw-preview-section">
+    <div class="preview-header">
+      <h3 id="vw-preview-title">Lomos generados</h3>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" onclick="vwImprimirTodos()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Imprimir todos
+        </button>
+        <button class="btn btn-primary" id="vw-btn-guardar" onclick="guardarDespachoVW()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar Despacho
+        </button>
+      </div>
+    </div>
+    <div class="labels-grid" id="vw-labels-grid"></div>
   </div>
 </div>
 
@@ -774,6 +903,26 @@ function guardarDespacho_(ss, d) {
     ]);
   });
 
+  // ── Duplicar en hoja VENTA WEB si tipo='ventaweb' ────────────────────
+  if ((d.tipo||"").toLowerCase() === "ventaweb") {
+    var hVW = sheet_(ss,"VENTA WEB",
+      ["ID","Fecha","Nombre","RUT","Dirección","Teléfono","Email",
+       "Guia","OC","OV","Picking","Total Bultos",
+       "N° Bulto","Tipo Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
+      "#7c3aed");
+    bultos.forEach(function(b){
+      hVW.appendRow([
+        d.id||"", d.fecha||"", d.nombre||d.destinatario||"",
+        d.rut||"", d.dir||"", d.tel||"", d.email||"",
+        d.guia||d.gd||"", d.oc||"", d.ov||"", d.picking||"",
+        d.total||1, b.num||1, b.tipo||"",
+        b.alto||"", b.ancho||"", b.largo||"",
+        b.dims||"", b.peso||"",
+        new Date().toLocaleString("es-CL")
+      ]);
+    });
+  }
+
   // ── Duplicar en hoja CONSOLIDADO si ruta='CONSOLIDADO' ──────────────
   if ((d.ruta||"").toUpperCase().trim() === "CONSOLIDADO") {
     var hC = sheet_(ss,"CONSOLIDADO",
@@ -942,6 +1091,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('o-fecha').value=hoy();
   generarFilasBultos('t');
   generarFilasBultos('o');
+  generarFilasBultos('vw');
+  document.getElementById('vw-fecha').value=hoy();
   if(config.scriptUrl){
     document.getElementById('script-url').value=config.scriptUrl;
     document.getElementById('config-alert').classList.add('hidden');
@@ -980,6 +1131,7 @@ function switchTab(tab){
   if(tab==='historial'){cargarHistorial();sincronizarHistorial();}
   if(tab==='config')actualizarLocalCount();
   if(tab==='clientes'){renderClientes();sincronizarClientes();}
+  if(tab==='ventaweb') generarFilasBultos('vw');
 }
 function setTipo(tipo){
   tipoActivo=tipo;
@@ -1747,6 +1899,283 @@ function checkSyncStatus(){
     return;
   }
   updateSyncStatus('idle','Script configurado · usa los botones para sincronizar');
+}
+
+// ═══════════════════════════════════════════════════
+// VENTA WEB
+// ═══════════════════════════════════════════════════
+let currentDataVW = null;
+
+// Datos fijos del remitente
+const VW_REMITENTE = {
+  empresa: 'SERVIALL',
+  rut: '76.035.324-8',
+  direccion: 'GRAL. SAN MARTIN 8400 COLINA',
+  ciudad: 'SANTIAGO',
+  telefono: '56 9 51945395',
+  correo: 'cmojica@serviall.cl'
+};
+
+function generarLomosVentaWeb(){
+  const nombre = document.getElementById('vw-nombre').value.trim().toUpperCase();
+  if(!nombre){showToast('Ingresa el nombre del destinatario','error');return;}
+  const bultos = leerBultos('vw');
+  const total = bultos.length||1;
+  const ocNum = document.getElementById('vw-oc-num').value.trim();
+  const d = {
+    tipo: 'ventaweb',
+    nombre,
+    rut:     document.getElementById('vw-rut').value.trim(),
+    tel:     document.getElementById('vw-tel').value.trim(),
+    dir:     document.getElementById('vw-dir').value.trim(),
+    guia:    document.getElementById('vw-guia').value.trim(),
+    fecha:   document.getElementById('vw-fecha').value,
+    oc:      'WEB-' + ocNum,
+    ov:      document.getElementById('vw-ov').value.trim(),
+    picking: document.getElementById('vw-picking').value.trim(),
+    email:   document.getElementById('vw-email').value.trim(),
+    total,
+    bultos,
+    fechaFmt: fmtFecha(document.getElementById('vw-fecha').value),
+    // for historial display
+    destinatario: nombre,
+    ciudad: '',
+    tipoBulto: bultos.length ? bultos.map(b=>b.tipo).filter((v,i,a)=>a.indexOf(v)===i).join('/') : 'BULTO',
+    ruta: 'WEB',
+    gd: document.getElementById('vw-guia').value.trim(),
+  };
+  currentDataVW = d;
+
+  const grid = document.getElementById('vw-labels-grid');
+  grid.innerHTML = '';
+
+  d.bultos.forEach((b,i)=>{
+    // Lomo REMITENTE
+    const wR = document.createElement('div');
+    wR.className = 'label-wrapper';
+    wR.innerHTML = htmlLomoVWRemitente(d, b) +
+      `<div style="display:flex;gap:8px;"><button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="vwImprimirUna(${i},'remitente')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Remitente</button></div>`;
+    grid.appendChild(wR);
+
+    // Lomo WEB (destinatario)
+    const wD = document.createElement('div');
+    wD.className = 'label-wrapper';
+    wD.innerHTML = htmlLomoVWDest(d, b) +
+      `<div style="display:flex;gap:8px;"><button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="vwImprimirUna(${i},'dest')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Destinatario</button></div>`;
+    grid.appendChild(wD);
+  });
+
+  const ps = document.getElementById('vw-preview-section');
+  ps.style.display = 'block';
+  document.getElementById('vw-preview-title').textContent =
+    `${total} bulto${total>1?'s':''} — ${total*2} lomos (${total} remitente + ${total} destinatario)`;
+  ps.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── HTML LOMO REMITENTE ────────────────────────────────
+function htmlLomoVWRemitente(d, b){
+  return`<table class="lomo-vw">
+    <tr>
+      <td class="lw-cell" style="width:120px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;" rowspan="5">
+        <img src="${LOGO_B64}" style="width:108px;display:block;margin:0 auto;" alt="ServiAll"/>
+      </td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:26px;font-weight:900;padding:5px 8px;">REMITENTE</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="3" style="text-align:center;font-size:18px;font-weight:700;">${VW_REMITENTE.empresa}</td>
+      <td class="lw-cell" colspan="3" style="border-right:2.5px solid #000;text-align:center;font-size:14px;">RUT: ${VW_REMITENTE.rut}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;font-weight:600;">${VW_REMITENTE.direccion}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;font-weight:600;">${VW_REMITENTE.ciudad}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="3" style="text-align:center;font-size:13px;"><span class="lw-label">TELEFONO </span>${VW_REMITENTE.telefono}</td>
+      <td class="lw-cell" colspan="3" style="border-right:2.5px solid #000;text-align:center;font-size:13px;"><span class="lw-label">CORREO </span>${VW_REMITENTE.correo}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">N° DE GUÍA:</span></td>
+      <td class="lw-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${d.guia||'—'}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE COMPRA:</span></td>
+      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.oc}</span></td>
+      <td class="lw-cell" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${d.fechaFmt}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE VENTA:</span></td>
+      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.ov||'—'}</span></td>
+      <td class="lw-cell"><span class="lw-label">PICKING:</span></td>
+      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value" style="font-size:16px;font-weight:900;">${d.picking||'—'}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">${b.tipo||'BULTO'}</span></td>
+      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${b.num} DE ${d.total}</span></td>
+      <td class="lw-cell"><span class="lw-label">MED.:</span></td>
+      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${b.dims||'—'}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left lw-cell-bottom" colspan="2"><span class="lw-label">PESO</span></td>
+      <td class="lw-cell lw-cell-bottom" colspan="3" style="text-align:center;"><span class="lw-value">${b.peso||'—'}</span></td>
+      <td class="lw-cell lw-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;">&nbsp;</td>
+    </tr>
+  </table>`;
+}
+
+// ── HTML LOMO DESTINATARIO (WEB) ───────────────────────
+function htmlLomoVWDest(d, b){
+  return`<table class="lomo-vw">
+    <tr>
+      <td class="lw-cell" style="width:120px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;" rowspan="5">
+        <img src="${LOGO_B64}" style="width:108px;display:block;margin:0 auto;" alt="ServiAll"/>
+      </td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:20px;font-weight:900;padding:5px 8px;">${d.nombre}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:15px;">RUT: ${d.rut||'—'}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:17px;font-weight:600;">${d.dir||'—'}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;">${d.tel||'—'}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:14px;color:var(--gray-500);">${d.email||''}</td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">N° DE GUÍA:</span></td>
+      <td class="lw-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${d.guia||'—'}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE COMPRA:</span></td>
+      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.oc}</span></td>
+      <td class="lw-cell" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${d.fechaFmt}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE VENTA:</span></td>
+      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.ov||'—'}</span></td>
+      <td class="lw-cell"><span class="lw-label">PICKING:</span></td>
+      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value" style="font-size:16px;font-weight:900;">${d.picking||'—'}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">${b.tipo||'BULTO'}</span></td>
+      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${b.num} DE ${d.total}</span></td>
+      <td class="lw-cell"><span class="lw-label">MED.:</span></td>
+      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${b.dims||'—'}</span></td>
+    </tr>
+    <tr>
+      <td class="lw-cell lw-cell-left lw-cell-bottom" colspan="2"><span class="lw-label">PESO</span></td>
+      <td class="lw-cell lw-cell-bottom" colspan="3" style="text-align:center;"><span class="lw-value">${b.peso||'—'}</span></td>
+      <td class="lw-cell lw-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;font-size:15px;">${d.email||''}</td>
+    </tr>
+  </table>`;
+}
+
+// ── IMPRESIÓN VW ───────────────────────────────────────
+function buildPrintVW(indices){
+  if(!currentDataVW) return '';
+  const d = currentDataVW;
+  return indices.map(i=>{
+    const b = d.bultos[i];
+    if(!b) return '';
+    const logoCell = `<td class="p-logo" style="border-left:2px solid #000;background:#fff;text-align:center;vertical-align:middle;padding:1mm 2mm;"><img src="${LOGO_B64}" style="width:32mm;display:block;margin:0 auto;" alt="ServiAll"/></td>`;
+
+    const rem = `<div class="print-lomo-ov"><table class="ptable">
+      <tr>${logoCell}<td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:16pt;font-weight:900;padding:2mm;">REMITENTE</td></tr>
+      <tr><td colspan="3" style="text-align:center;font-size:14pt;font-weight:700;">${VW_REMITENTE.empresa}</td><td colspan="3" style="border-right:2px solid #000;text-align:center;font-size:11pt;">RUT: ${VW_REMITENTE.rut}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${VW_REMITENTE.direccion}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${VW_REMITENTE.ciudad}</td></tr>
+      <tr><td colspan="3" style="text-align:center;font-size:10pt;">TEL: ${VW_REMITENTE.telefono}</td><td colspan="3" style="border-right:2px solid #000;text-align:center;font-size:10pt;">${VW_REMITENTE.correo}</td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">N° DE GUÍA:</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.guia||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.oc}</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.ov||'—'}</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;">&nbsp;</td></tr>
+    </table></div>`;
+
+    const dest = `<div class="print-lomo-ov"><table class="ptable">
+      <tr>${logoCell}<td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:14pt;font-weight:900;">${d.nombre}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">RUT: ${d.rut||'—'}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${d.dir||'—'}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">${d.tel||'—'}</td></tr>
+      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:10pt;">${d.email||''}</td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">N° DE GUÍA:</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.guia||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.oc}</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.ov||'—'}</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
+      <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;text-align:center;font-size:9pt;">${d.email||''}</td></tr>
+    </table></div>`;
+
+    return rem + dest;
+  }).join('');
+}
+
+function vwImprimirTodos(){
+  if(!currentDataVW) return;
+  document.getElementById('print-area').innerHTML = buildPrintVW(currentDataVW.bultos.map((_,i)=>i));
+  window.print();
+}
+
+function vwImprimirUna(idx, tipo){
+  if(!currentDataVW) return;
+  const d = currentDataVW;
+  const b = d.bultos[idx];
+  if(!b) return;
+  let html = '';
+  if(tipo==='remitente') html = buildPrintVW([idx]).split('</div>')[0] + '</div>';
+  else {
+    // get second lomo (dest)
+    const both = buildPrintVW([idx]);
+    const parts = both.split('class="print-lomo-ov">');
+    html = '<div class="print-lomo-ov">' + (parts[2]||parts[1]||'');
+  }
+  document.getElementById('print-area').innerHTML = html || buildPrintVW([idx]);
+  window.print();
+}
+
+// ── GUARDAR VW ─────────────────────────────────────────
+async function guardarDespachoVW(){
+  if(!currentDataVW) return;
+  const id = 'D-'+Date.now();
+  const reg = {id, ...currentDataVW, guardadoEn:new Date().toISOString(), sincronizado:false};
+  despachos.unshift(reg);
+  localStorage.setItem('despachos_serviall', JSON.stringify(despachos));
+  actualizarBadge(); actualizarLocalCount();
+  const url = config.scriptUrl;
+  const btn = document.getElementById('vw-btn-guardar');
+  if(url){
+    btn.disabled=true; btn.innerHTML='Guardando…';
+    try{
+      await gasPost(url, reg);
+      despachos[0].sincronizado=true;
+      localStorage.setItem('despachos_serviall',JSON.stringify(despachos));
+      showToast('✓ Guardado en Sheets','success');
+    }catch(err){
+      showToast('Guardado local — error: '+err.message,'error');
+    }
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Despacho';
+  } else {
+    showToast('Guardado localmente','success');
+  }
+  cargarHistorial();
+}
+
+function limpiarVW(){
+  ['vw-nombre','vw-rut','vw-tel','vw-dir','vw-guia','vw-oc-num','vw-ov','vw-picking','vw-email'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('vw-total').value=1;
+  generarFilasBultos('vw');
+  document.getElementById('vw-preview-section').style.display='none';
+  currentDataVW=null;
 }
 
 function showToast(msg,type){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.className='show'+(type?' '+type:'');setTimeout(()=>t.className='',3200);}
