@@ -2014,55 +2014,32 @@ function generarLomosVentaWeb(){
 function htmlLomoVWRemitente(d, b){
   return`<table class="lomo-vw">
     <tr>
-      <td class="lw-cell" style="width:120px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;" rowspan="5">
-        <img src="${LOGO_B64}" style="width:108px;display:block;margin:0 auto;" alt="ServiAll"/>
+      <td class="lw-cell" rowspan="6" style="width:130px;text-align:center;vertical-align:middle;border-left:2.5px solid #000;background:#fff;padding:6px;">
+        <img src="${LOGO_B64}" style="width:118px;display:block;margin:0 auto;" alt="ServiAll"/>
       </td>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:26px;font-weight:900;padding:5px 8px;">REMITENTE</td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:28px;font-weight:900;padding:6px 8px;">REMITENTE</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="3" style="text-align:center;font-size:18px;font-weight:700;">${VW_REMITENTE.empresa}</td>
+      <td class="lw-cell" colspan="3" style="text-align:center;font-size:16px;font-weight:700;">${VW_REMITENTE.empresa}</td>
       <td class="lw-cell" colspan="3" style="border-right:2.5px solid #000;text-align:center;font-size:14px;">RUT: ${VW_REMITENTE.rut}</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;font-weight:600;">${VW_REMITENTE.direccion}</td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:15px;font-weight:600;">${VW_REMITENTE.direccion}</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;font-weight:600;">${VW_REMITENTE.ciudad}</td>
+      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:15px;font-weight:600;">${VW_REMITENTE.ciudad}</td>
     </tr>
     <tr>
-      <td class="lw-cell" colspan="3" style="text-align:center;font-size:13px;"><span class="lw-label">TELEFONO </span>${VW_REMITENTE.telefono}</td>
-      <td class="lw-cell" colspan="3" style="border-right:2.5px solid #000;text-align:center;font-size:13px;"><span class="lw-label">CORREO </span>${VW_REMITENTE.correo}</td>
+      <td class="lw-cell" colspan="1" style="border-left:2.5px solid #000;font-size:13px;font-weight:700;">TELEFONO</td>
+      <td class="lw-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;font-size:15px;font-weight:600;">${VW_REMITENTE.telefono}</td>
     </tr>
     <tr>
-      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">N° DE GUÍA:</span></td>
-      <td class="lw-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${d.guia||'—'}</span></td>
-    </tr>
-    <tr>
-      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE COMPRA:</span></td>
-      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.oc}</span></td>
-      <td class="lw-cell" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${d.fechaFmt}</span></td>
-    </tr>
-    <tr>
-      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">ORDEN DE VENTA:</span></td>
-      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${d.ov||'—'}</span></td>
-      <td class="lw-cell"><span class="lw-label">PICKING:</span></td>
-      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value" style="font-size:16px;font-weight:900;">${d.picking||'—'}</span></td>
-    </tr>
-    <tr>
-      <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">${b.tipo||'BULTO'}</span></td>
-      <td class="lw-cell" colspan="3" style="text-align:center;"><span class="lw-value">${b.num} DE ${d.total}</span></td>
-      <td class="lw-cell"><span class="lw-label">MED.:</span></td>
-      <td class="lw-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value">${b.dims||'—'}</span></td>
-    </tr>
-    <tr>
-      <td class="lw-cell lw-cell-left lw-cell-bottom" colspan="2"><span class="lw-label">PESO</span></td>
-      <td class="lw-cell lw-cell-bottom" colspan="3" style="text-align:center;"><span class="lw-value">${b.peso||'—'}</span></td>
-      <td class="lw-cell lw-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;">&nbsp;</td>
+      <td class="lw-cell lw-cell-bottom" colspan="1" style="border-left:2.5px solid #000;font-size:13px;font-weight:700;">CORREO</td>
+      <td class="lw-cell lw-cell-bottom" colspan="5" style="border-right:2.5px solid #000;text-align:center;font-size:15px;font-weight:600;">${VW_REMITENTE.correo}</td>
     </tr>
   </table>`;
 }
 
-// ── HTML LOMO DESTINATARIO (WEB) ───────────────────────
 function htmlLomoVWDest(d, b){
   return`<table class="lomo-vw">
     <tr>
@@ -2121,17 +2098,17 @@ function buildPrintVW(indices){
     if(!b) return '';
     const logoCell = `<td class="p-logo" style="border-left:2px solid #000;background:#fff;text-align:center;vertical-align:middle;padding:1mm 2mm;"><img src="${LOGO_B64}" style="width:32mm;display:block;margin:0 auto;" alt="ServiAll"/></td>`;
 
-    const rem = `<div class="print-lomo-ov"><table class="ptable">
-      <tr>${logoCell}<td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:16pt;font-weight:900;padding:2mm;">REMITENTE</td></tr>
-      <tr><td colspan="3" style="text-align:center;font-size:14pt;font-weight:700;">${VW_REMITENTE.empresa}</td><td colspan="3" style="border-right:2px solid #000;text-align:center;font-size:11pt;">RUT: ${VW_REMITENTE.rut}</td></tr>
+        const rem = `<div class="print-lomo-ov"><table class="ptable">
+      <tr><td class="p-logo" rowspan="6" style="border-left:2px solid #000;background:#fff;text-align:center;vertical-align:middle;padding:1mm 2mm;"><img src="${LOGO_B64}" style="width:32mm;display:block;margin:0 auto;" alt="ServiAll"/></td>
+        <td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:18pt;font-weight:900;padding:2mm;">REMITENTE</td></tr>
+      <tr><td colspan="3" style="text-align:center;font-size:13pt;font-weight:700;">${VW_REMITENTE.empresa}</td>
+        <td colspan="3" style="border-right:2px solid #000;text-align:center;font-size:11pt;">RUT: ${VW_REMITENTE.rut}</td></tr>
       <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${VW_REMITENTE.direccion}</td></tr>
       <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${VW_REMITENTE.ciudad}</td></tr>
-      <tr><td colspan="3" style="text-align:center;font-size:10pt;">TEL: ${VW_REMITENTE.telefono}</td><td colspan="3" style="border-right:2px solid #000;text-align:center;font-size:10pt;">${VW_REMITENTE.correo}</td></tr>
-      <tr><td colspan="2" class="p-border-left"><span class="p-label">N° DE GUÍA:</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.guia||'—'}</span></td></tr>
-      <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.oc}</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
-      <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.ov||'—'}</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
-      <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
-      <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;">&nbsp;</td></tr>
+      <tr><td colspan="1" style="border-left:2px solid #000;font-size:9pt;font-weight:700;">TELEFONO</td>
+        <td colspan="5" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${VW_REMITENTE.telefono}</td></tr>
+      <tr><td colspan="1" class="p-border-bottom" style="border-left:2px solid #000;font-size:9pt;font-weight:700;">CORREO</td>
+        <td colspan="5" class="p-border-bottom" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${VW_REMITENTE.correo}</td></tr>
     </table></div>`;
 
     const dest = `<div class="print-lomo-ov"><table class="ptable">
