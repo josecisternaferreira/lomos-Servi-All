@@ -426,14 +426,13 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
           <div class="bultos-num-wrap">
             <label>N° de bultos:</label>
             <input type="number" id="t-total" value="1" min="1" max="50" class="bultos-num-input" oninput="generarFilasBultos('t')"/>
-            <select id="t-tipo-bulto" class="bultos-tipo-select">
-              <option>PALLET</option><option>BULTO</option><option>CAJA</option><option>CAJÓN</option><option>BOLSA</option>
-            </select>
+
           </div>
           <div class="bultos-table-wrap">
             <table class="bultos-table">
               <thead><tr>
                 <th>#</th>
+                <th>Tipo</th>
                 <th>Alto (cm)</th>
                 <th>Ancho (cm)</th>
                 <th>Largo (cm)</th>
@@ -485,14 +484,13 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
           <div class="bultos-num-wrap">
             <label>N° de bultos:</label>
             <input type="number" id="o-total" value="1" min="1" max="50" class="bultos-num-input" oninput="generarFilasBultos('o')"/>
-            <select id="o-tipo-bulto" class="bultos-tipo-select">
-              <option>BULTO</option><option>PALLET</option><option>CAJA</option><option>CAJÓN</option><option>BOLSA</option>
-            </select>
+
           </div>
           <div class="bultos-table-wrap">
             <table class="bultos-table">
               <thead><tr>
                 <th>#</th>
+                <th>Tipo</th>
                 <th>Alto (cm)</th>
                 <th>Ancho (cm)</th>
                 <th>Largo (cm)</th>
@@ -762,7 +760,7 @@ function guardarDespacho_(ss, d) {
   var h = sheet_(ss,"Despachos",
     ["ID","Fecha","Tipo","Cliente","Guia","OC","OV","Picking",
      "Ciudad","Total Bultos","TipoBulto","Ruta",
-     "N° Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
+     "N° Bulto","Tipo Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
     "#D0191A");
   var bultos=(d.bultos&&d.bultos.length)?d.bultos:[{num:1,alto:"",ancho:"",largo:"",dims:"",peso:""}];
   bultos.forEach(function(b){
@@ -770,7 +768,7 @@ function guardarDespacho_(ss, d) {
       d.id||"", d.fecha||"", d.tipo||"", d.destinatario||"",
       d.gd||d.guia||"", d.oc||"", d.ov||"", d.picking||"",
       d.ciudad||"", d.total||1, d.tipoBulto||"", d.ruta||"",
-      b.num||1, b.alto||"", b.ancho||"", b.largo||"",
+      b.num||1, b.tipo||"", b.alto||"", b.ancho||"", b.largo||"",
       b.dims||"", b.peso||"",
       new Date().toLocaleString("es-CL")
     ]);
@@ -781,14 +779,14 @@ function guardarDespacho_(ss, d) {
     var hC = sheet_(ss,"CONSOLIDADO",
       ["ID","Fecha","Tipo","Cliente","Guia","OC","OV","Picking",
        "Ciudad","Total Bultos","TipoBulto","Ruta",
-       "N° Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
+       "N° Bulto","Tipo Bulto","Alto","Ancho","Largo","Medidas","Peso","Timestamp"],
       "#065f46");
     bultos.forEach(function(b){
       hC.appendRow([
         d.id||"", d.fecha||"", d.tipo||"", d.destinatario||"",
         d.gd||d.guia||"", d.oc||"", d.ov||"", d.picking||"",
         d.ciudad||"", d.total||1, d.tipoBulto||"", d.ruta||"",
-        b.num||1, b.alto||"", b.ancho||"", b.largo||"",
+        b.num||1, b.tipo||"", b.alto||"", b.ancho||"", b.largo||"",
         b.dims||"", b.peso||"",
         new Date().toLocaleString("es-CL")
       ]);
@@ -1311,13 +1309,17 @@ function generarFilasBultos(prefix){
   // preserve existing values
   const existing=Array.from(tbody.querySelectorAll('tr')).map(tr=>{
     const inp=tr.querySelectorAll('input');
-    return{alto:inp[0]?.value||'',ancho:inp[1]?.value||'',largo:inp[2]?.value||'',peso:inp[3]?.value||''};
+    const sel=tr.querySelector('select');
+    return{tipo:sel?.value||'BULTO',alto:inp[0]?.value||'',ancho:inp[1]?.value||'',largo:inp[2]?.value||'',peso:inp[3]?.value||''};
   });
   tbody.innerHTML='';
+  const tipos=['PALLET','BULTO','CAJA','CAJÓN','BOLSA'];
   for(let i=0;i<n;i++){
     const prev=existing[i]||{};
+    const opts=tipos.map(t=>`<option value="${t}"${(prev.tipo||'BULTO')===t?' selected':''}>${t}</option>`).join('');
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td>
+    tr.innerHTML=`<td style="text-align:center;font-weight:700;color:var(--gray-500);font-size:12px;">${i+1}</td>
+      <td><select style="border:1.5px solid var(--gray-200);border-radius:5px;padding:6px 6px;font-family:'Public Sans',sans-serif;font-size:12px;width:100%;">${opts}</select></td>
       <td><input type="number" placeholder="120" min="0" step="1" value="${prev.alto||''}" /></td>
       <td><input type="number" placeholder="100" min="0" step="1" value="${prev.ancho||''}" /></td>
       <td><input type="number" placeholder="80" min="0" step="1" value="${prev.largo||''}" /></td>
@@ -1331,11 +1333,13 @@ function leerBultos(prefix){
   if(!tbody)return[];
   return Array.from(tbody.querySelectorAll('tr')).map((tr,i)=>{
     const inp=tr.querySelectorAll('input');
+    const sel=tr.querySelector('select');
+    const tipo=sel?.value||'BULTO';
     const alto=inp[0]?.value.trim()||'';
     const ancho=inp[1]?.value.trim()||'';
     const largo=inp[2]?.value.trim()||'';
     const peso=inp[3]?.value.trim()||'';
-    return{num:i+1,alto,ancho,largo,dims:[alto,ancho,largo].filter(Boolean).join('*'),peso:peso?peso+' KG':''};
+    return{num:i+1,tipo,alto,ancho,largo,dims:[alto,ancho,largo].filter(Boolean).join('*'),peso:peso?peso+' KG':''};
   });
 }
 
@@ -1344,12 +1348,14 @@ function recogerDatos(tipo){
     const dest=document.getElementById('t-destinatario').value.trim().toUpperCase();
     if(!dest){showToast('Ingresa el destinatario','error');return null;}
     const bultos=leerBultos('t');
-    return{tipo:'traslado',destinatario:dest,sede:v('t-sede'),ciudad:v('t-ciudad'),gd:v('t-gd'),fecha:v('t-fecha'),oc:'TRASLADO',ov:'TRASLADO',picking:v('t-picking'),total:bultos.length||1,tipoBulto:v('t-tipo-bulto'),bultos,ruta:v('t-obs'),fechaFmt:fmtFecha(v('t-fecha'))};
+    const tipoResumenT=bultos.length?bultos.map(b=>b.tipo).filter((v,i,a)=>a.indexOf(v)===i).join('/'):'';
+    return{tipo:'traslado',destinatario:dest,sede:v('t-sede'),ciudad:v('t-ciudad'),gd:v('t-gd'),fecha:v('t-fecha'),oc:'TRASLADO',ov:'TRASLADO',picking:v('t-picking'),total:bultos.length||1,tipoBulto:tipoResumenT,bultos,ruta:v('t-obs'),fechaFmt:fmtFecha(v('t-fecha'))};
   } else {
     const cliente=document.getElementById('o-cliente').value.trim().toUpperCase();
     if(!cliente){showToast('Ingresa el cliente','error');return null;}
     const bultos=leerBultos('o');
-    return{tipo:'ov',destinatario:cliente,cliente,bodega:v('o-bodega'),ciudad:v('o-ciudad').toUpperCase(),guia:v('o-guia'),fecha:v('o-fecha'),oc:v('o-oc'),ov:v('o-ov'),picking:v('o-picking'),total:bultos.length||1,tipoBulto:v('o-tipo-bulto'),bultos,ruta:v('o-obs'),centro:v('o-centro').toUpperCase(),nombreSol:v('o-nombre-sol').toUpperCase(),fechaFmt:fmtFecha(v('o-fecha'))};
+    const tipoResumenOV=bultos.length?bultos.map(b=>b.tipo).filter((v,i,a)=>a.indexOf(v)===i).join('/'):'';
+    return{tipo:'ov',destinatario:cliente,cliente,bodega:v('o-bodega'),ciudad:v('o-ciudad').toUpperCase(),guia:v('o-guia'),fecha:v('o-fecha'),oc:v('o-oc'),ov:v('o-ov'),picking:v('o-picking'),total:bultos.length||1,tipoBulto:tipoResumenOV,bultos,ruta:v('o-obs'),centro:v('o-centro').toUpperCase(),nombreSol:v('o-nombre-sol').toUpperCase(),fechaFmt:fmtFecha(v('o-fecha'))};
   }
 }
 function v(id){return document.getElementById(id)?.value?.trim()||'';}
@@ -1380,7 +1386,7 @@ function htmlLomoTraslado(d,b){
     <tr><td class="lt-cell lt-cell-left" colspan="2"><span class="lt-label">GD</span></td><td class="lt-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lt-value-lg">${d.gd||'—'}</span></td></tr>
     <tr><td class="lt-cell lt-cell-left" colspan="2"><span class="lt-label">ORDEN DE COMPRA:</span></td><td class="lt-cell" colspan="3" style="text-align:center;"><span class="lt-value">TRASLADO</span></td><td class="lt-cell" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lt-value">${d.fechaFmt}</span></td></tr>
     <tr><td class="lt-cell lt-cell-left" colspan="2"><span class="lt-label">ORDEN DE VENTA:</span></td><td class="lt-cell" colspan="3" style="text-align:center;"><span class="lt-value">TRASLADO</span></td><td class="lt-cell"><span class="lt-label">PICKING:</span></td><td class="lt-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lt-value" style="font-size:16px;font-weight:900;">${d.picking||'—'}</span></td></tr>
-    <tr><td class="lt-cell lt-cell-left" colspan="2"><span class="lt-label">${d.tipoBulto}</span></td><td class="lt-cell" colspan="3" style="text-align:center;"><span class="lt-value">${b.num} DE ${d.total}</span></td><td class="lt-cell"><span class="lt-label">MED.:</span></td><td class="lt-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lt-value">${b.dims||'—'}</span></td></tr>
+    <tr><td class="lt-cell lt-cell-left" colspan="2"><span class="lt-label">${b.tipo||d.tipoBulto||'BULTO'}</span></td><td class="lt-cell" colspan="3" style="text-align:center;"><span class="lt-value">${b.num} DE ${d.total}</span></td><td class="lt-cell"><span class="lt-label">MED.:</span></td><td class="lt-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lt-value">${b.dims||'—'}</span></td></tr>
     <tr><td class="lt-cell lt-cell-left lt-cell-bottom" colspan="2"><span class="lt-label">PESO</span></td><td class="lt-cell lt-cell-bottom" colspan="3" style="text-align:center;"><span class="lt-value">${b.peso||'—'}</span></td><td class="lt-cell lt-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lt-value" style="font-size:15px;">${d.ruta||'—'}</span></td></tr>
   </table>`;
 }
@@ -1400,7 +1406,7 @@ function htmlLomoOV(d,b){
     <tr><td class="lov-cell lov-cell-left" colspan="2"><span class="lov-label">N° DE GUÍA:</span></td><td class="lov-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lov-value-lg">${d.guia||'—'}</span></td></tr>
     <tr><td class="lov-cell lov-cell-left" colspan="2"><span class="lov-label">ORDEN DE COMPRA:</span></td><td class="lov-cell" colspan="3" style="text-align:center;"><span class="lov-value">${d.oc||'—'}</span></td><td class="lov-cell" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lov-value">${d.fechaFmt}</span></td></tr>
     <tr><td class="lov-cell lov-cell-left" colspan="2"><span class="lov-label">ORDEN DE VENTA:</span></td><td class="lov-cell" colspan="3" style="text-align:center;"><span class="lov-value">${d.ov||'—'}</span></td><td class="lov-cell"><span class="lov-label">PICKING:</span></td><td class="lov-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lov-value" style="font-size:15px;font-weight:900;">${d.picking||'—'}</span></td></tr>
-    <tr><td class="lov-cell lov-cell-left" colspan="2"><span class="lov-label">${d.tipoBulto}</span></td><td class="lov-cell" colspan="3" style="text-align:center;"><span class="lov-value">${b.num} DE ${d.total}</span></td><td class="lov-cell"><span class="lov-label">MED:</span></td><td class="lov-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lov-value">${b.dims||'—'}</span></td></tr>
+    <tr><td class="lov-cell lov-cell-left" colspan="2"><span class="lov-label">${b.tipo||d.tipoBulto||'BULTO'}</span></td><td class="lov-cell" colspan="3" style="text-align:center;"><span class="lov-value">${b.num} DE ${d.total}</span></td><td class="lov-cell"><span class="lov-label">MED:</span></td><td class="lov-cell" style="border-right:2.5px solid #000;text-align:center;"><span class="lov-value">${b.dims||'—'}</span></td></tr>
     <tr><td class="lov-cell lov-cell-left lov-cell-bottom" colspan="2"><span class="lov-label">PESO</span></td><td class="lov-cell lov-cell-bottom" colspan="3" style="text-align:center;"><span class="lov-value">${b.peso||'—'}</span></td><td class="lov-cell lov-cell-bottom" colspan="2" style="border-right:2.5px solid #000;text-align:center;"><span class="lov-value" style="font-size:15px;">${d.ruta||'—'}</span></td></tr>
   </table>`;
 }
@@ -1421,7 +1427,7 @@ function buildPrintHtml(indices){
         <tr><td colspan="2" class="p-border-left"><span class="p-label">GD</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.gd||'—'}</span></td></tr>
         <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">TRASLADO</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
         <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">TRASLADO</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
-        <tr><td colspan="2" class="p-border-left"><span class="p-label">${d.tipoBulto}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
+        <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||d.tipoBulto||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED.:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
         <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.ruta||'—'}</span></td></tr>
       </table></div>`;
     } else {
@@ -1435,7 +1441,7 @@ function buildPrintHtml(indices){
         <tr><td colspan="2" class="p-border-left"><span class="p-label">N° DE GUÍA:</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.guia||'—'}</span></td></tr>
         <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.oc||'—'}</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
         <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.ov||'—'}</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
-        <tr><td colspan="2" class="p-border-left"><span class="p-label">${d.tipoBulto}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
+        <tr><td colspan="2" class="p-border-left"><span class="p-label">${b.tipo||d.tipoBulto||'BULTO'}</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${b.num} DE ${d.total}</span></td><td><span class="p-label">MED:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val">${b.dims||'—'}</span></td></tr>
         <tr><td colspan="2" class="p-border-left p-border-bottom"><span class="p-label">PESO</span></td><td colspan="3" class="p-border-bottom" style="text-align:center;"><span class="p-val">${b.peso||'—'}</span></td><td colspan="2" class="p-border-bottom" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.ruta||'—'}</span></td></tr>
       </table></div>`;
     }
