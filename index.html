@@ -599,10 +599,7 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
           <label>N° Picking</label>
           <input type="text" id="vw-picking" placeholder="Ej: 139736"/>
         </div>
-        <div class="form-group">
-          <label>Correo <span style="font-weight:400;color:var(--gray-400);text-transform:none;">(opcional)</span></label>
-          <input type="text" id="vw-email" placeholder="Ej: ayuda@allclick.cl"/>
-        </div>
+
         <div class="form-group full">
           <label>Bultos</label>
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
@@ -1967,7 +1964,7 @@ function generarLomosVentaWeb(){
     oc:      'WEB-' + ocNum,
     ov:      document.getElementById('vw-ov').value.trim(),
     picking: document.getElementById('vw-picking').value.trim(),
-    email:   document.getElementById('vw-email').value.trim(),
+    email:   'AYUDA@ALLCLICK.CL',
     total,
     bultos,
     fechaFmt: fmtFecha(document.getElementById('vw-fecha').value),
@@ -2057,9 +2054,7 @@ function htmlLomoVWDest(d, b){
     <tr>
       <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:16px;">${d.tel||'—'}</td>
     </tr>
-    <tr>
-      <td class="lw-cell" colspan="6" style="border-right:2.5px solid #000;text-align:center;font-size:14px;color:var(--gray-500);">${d.email||''}</td>
-    </tr>
+
     <tr>
       <td class="lw-cell lw-cell-left" colspan="2"><span class="lw-label">N° DE GUÍA:</span></td>
       <td class="lw-cell" colspan="5" style="border-right:2.5px solid #000;text-align:center;"><span class="lw-value-lg">${d.guia||'—'}</span></td>
@@ -2116,7 +2111,7 @@ function buildPrintVW(indices){
       <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">RUT: ${d.rut||'—'}</td></tr>
       <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:12pt;font-weight:600;">${d.dir||'—'}</td></tr>
       <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:11pt;">${d.tel||'—'}</td></tr>
-      <tr><td colspan="6" style="border-right:2px solid #000;text-align:center;font-size:10pt;">${d.email||''}</td></tr>
+
       <tr><td colspan="2" class="p-border-left"><span class="p-label">N° DE GUÍA:</span></td><td colspan="5" style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.guia||'—'}</span></td></tr>
       <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE COMPRA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.oc}</span></td><td colspan="2" style="border-right:2px solid #000;text-align:center;"><span class="p-val">${d.fechaFmt}</span></td></tr>
       <tr><td colspan="2" class="p-border-left"><span class="p-label">ORDEN DE VENTA:</span></td><td colspan="3" style="text-align:center;"><span class="p-val">${d.ov||'—'}</span></td><td><span class="p-label">PICKING:</span></td><td style="border-right:2px solid #000;text-align:center;"><span class="p-val-lg">${d.picking||'—'}</span></td></tr>
@@ -2180,7 +2175,7 @@ async function guardarDespachoVW(){
 }
 
 function limpiarVW(){
-  ['vw-nombre','vw-rut','vw-tel','vw-dir','vw-guia','vw-oc-num','vw-ov','vw-picking','vw-email'].forEach(id=>{
+  ['vw-nombre','vw-rut','vw-tel','vw-dir','vw-guia','vw-oc-num','vw-ov','vw-picking',].forEach(id=>{
     document.getElementById(id).value='';
   });
   document.getElementById('vw-total').value=1;
