@@ -1590,7 +1590,13 @@ function buildPrintHtml(indices){
   }).join('');
 }
 
-function imprimirTodas(){if(!currentData)return;document.getElementById('print-area').innerHTML=buildPrintHtml(currentData.bultos.map((_,i)=>i));window.print();}
+function imprimirTodas(){
+  if(!currentData)return;
+  if(currentData.tipo==='ventaweb'){ vwImprimirTodos(); return; }
+  document.getElementById('print-area').innerHTML=buildPrintHtml(currentData.bultos.map((_,i)=>i));
+  window.print();
+}
+
 function imprimirUna(idx){if(!currentData)return;document.getElementById('print-area').innerHTML=buildPrintHtml([idx]);window.print();}
 
 async function guardarDespacho(){
@@ -1976,6 +1982,7 @@ function generarLomosVentaWeb(){
     gd: document.getElementById('vw-guia').value.trim(),
   };
   currentDataVW = d;
+  currentData = d;  // unify so guardarDespacho() works for venta web too
 
   const grid = document.getElementById('labels-grid');
   grid.innerHTML = '';
