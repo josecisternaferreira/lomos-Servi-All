@@ -437,9 +437,9 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
               <thead><tr>
                 <th>#</th>
                 <th>Tipo</th>
-                <th>Alto (cm)</th>
                 <th>Ancho (cm)</th>
                 <th>Largo (cm)</th>
+                <th>Alto (cm)</th>
                 <th>Peso (kg)</th>
               </tr></thead>
               <tbody id="t-bultos-tbody"></tbody>
@@ -495,9 +495,9 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
               <thead><tr>
                 <th>#</th>
                 <th>Tipo</th>
-                <th>Alto (cm)</th>
                 <th>Ancho (cm)</th>
                 <th>Largo (cm)</th>
+                <th>Alto (cm)</th>
                 <th>Peso (kg)</th>
               </tr></thead>
               <tbody id="o-bultos-tbody"></tbody>
@@ -608,7 +608,7 @@ table.hist tbody td{padding:11px 14px;color:var(--gray-700);}
           </div>
           <div class="bultos-table-wrap">
             <table class="bultos-table">
-              <thead><tr><th>#</th><th>Tipo</th><th>Alto (cm)</th><th>Ancho (cm)</th><th>Largo (cm)</th><th>Peso (kg)</th></tr></thead>
+              <thead><tr><th>#</th><th>Tipo</th><th>Ancho (cm)</th><th>Largo (cm)</th><th>Alto (cm)</th><th>Peso (kg)</th></tr></thead>
               <tbody id="vw-bultos-tbody"></tbody>
             </table>
           </div>
@@ -1462,9 +1462,9 @@ function generarFilasBultos(prefix){
     const tr=document.createElement('tr');
     tr.innerHTML=`<td style="text-align:center;font-weight:700;color:var(--gray-500);font-size:12px;">${i+1}</td>
       <td><select style="border:1.5px solid var(--gray-200);border-radius:5px;padding:6px 6px;font-family:'Public Sans',sans-serif;font-size:12px;width:100%;">${opts}</select></td>
-      <td><input type="number" placeholder="120" min="0" step="1" value="${prev.alto||''}" /></td>
       <td><input type="number" placeholder="100" min="0" step="1" value="${prev.ancho||''}" /></td>
       <td><input type="number" placeholder="80" min="0" step="1" value="${prev.largo||''}" /></td>
+      <td><input type="number" placeholder="120" min="0" step="1" value="${prev.alto||''}" /></td>
       <td><input type="number" placeholder="0.0" min="0" step="0.1" value="${prev.peso||''}" /></td>`;
     tbody.appendChild(tr);
   }
@@ -1477,9 +1477,9 @@ function leerBultos(prefix){
     const inp=tr.querySelectorAll('input');
     const sel=tr.querySelector('select');
     const tipo=sel?.value||'BULTO';
-    const alto=inp[0]?.value.trim()||'';
-    const ancho=inp[1]?.value.trim()||'';
-    const largo=inp[2]?.value.trim()||'';
+    const ancho=inp[0]?.value.trim()||'';
+    const largo=inp[1]?.value.trim()||'';
+    const alto=inp[2]?.value.trim()||'';
     const peso=inp[3]?.value.trim()||'';
     return{num:i+1,tipo,alto,ancho,largo,dims:[alto,ancho,largo].filter(Boolean).join('*'),peso:peso?peso+' KG':''};
   });
